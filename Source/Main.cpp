@@ -1,6 +1,7 @@
 #include "ui_win32/MainWindow.h"
 
 #include "BgdaEeExecutor.h"
+#include "HleMainWindow.h"
 
 #ifdef VTUNE_ENABLED
 #include <jitprofiling.h>
@@ -9,9 +10,9 @@
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
 	CPS2VM virtualMachine;
-	CMainWindow MainWindow(virtualMachine);
+	HleMainWindow MainWindow(virtualMachine);
 
-	virtualMachine.m_ee->SetExecutor(std::make_unique<BgdaEeExecutor>(virtualMachine.m_ee->m_EE, virtualMachine.m_ee->m_ram));
+	virtualMachine.m_ee->SetExecutor(std::make_unique<BgdaEeExecutor>(virtualMachine.m_ee->m_EE, virtualMachine.m_ee->m_ram, virtualMachine));
 
 	MainWindow.Loop();
 #ifdef VTUNE_ENABLED

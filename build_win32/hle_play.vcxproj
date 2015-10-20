@@ -83,7 +83,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_DEBUG;DEBUGGER_INCLUDED;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_DEBUG;DEBUGGER_INCLUDED;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -96,7 +96,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_DEBUG;DEBUGGER_INCLUDED;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_DEBUG;DEBUGGER_INCLUDED;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -115,7 +115,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -132,7 +132,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="..\Source\BgdaEeExecutor.cpp" />
     <ClCompile Include="..\Source\BgdaMpegBlock.cpp" />
+    <ClCompile Include="..\Source\GSH_HleOgl.cpp" />
     <ClCompile Include="..\Source\HleMainWindow.cpp" />
     <ClCompile Include="..\Source\Main.cpp" />
   </ItemGroup>
@@ -180,7 +181,9 @@
   <ItemGroup>
     <ClInclude Include="..\Source\BgdaEeExecutor.h" />
     <ClInclude Include="..\Source\BgdaMpegBlock.h" />
+    <ClInclude Include="..\Source\GSH_HleOgl.h" />
     <ClInclude Include="..\Source\HleMainWindow.h" />
+    <ClInclude Include="..\Source\NopBlock.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
