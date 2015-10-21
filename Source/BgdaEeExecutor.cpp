@@ -8,7 +8,7 @@ BgdaEeExecutor::BasicBlockPtr BgdaEeExecutor::BlockFactory(CMIPS& context, uint3
 	if (start == 0x00154f6c) {
 		return std::make_shared<BgdaMpegBlock>(context, start, end, m_vm);
 	}
-	if (start > 0x00154f6c && start < 0x00155054){
+	if (start > 0x00154f6c && start < 0x00155024){
 		return std::make_shared<NopBlock>(context, start, end);
 	}
 	return CMipsExecutor::BlockFactory(context, start, end);

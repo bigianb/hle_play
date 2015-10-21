@@ -147,6 +147,8 @@
     <ClCompile Include="..\Source\GSH_HleOgl.cpp" />
     <ClCompile Include="..\Source\HleMainWindow.cpp" />
     <ClCompile Include="..\Source\Main.cpp" />
+    <ClCompile Include="..\Source\ui_win32\GSH_HleOglWin32.cpp" />
+    <ClCompile Include="..\Source\ui_win32\HleRendererSettingsWnd.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\codegen\build_win32\CodeGen.vcxproj">
@@ -183,7 +185,10 @@
     <ClInclude Include="..\Source\BgdaMpegBlock.h" />
     <ClInclude Include="..\Source\GSH_HleOgl.h" />
     <ClInclude Include="..\Source\HleMainWindow.h" />
+    <ClInclude Include="..\Source\HleVMUtils.h" />
     <ClInclude Include="..\Source\NopBlock.h" />
+    <ClInclude Include="..\Source\ui_win32\GSH_HleOglWin32.h" />
+    <ClInclude Include="..\Source\ui_win32\HleRendererSettingsWnd.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
