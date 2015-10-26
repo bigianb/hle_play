@@ -14,6 +14,9 @@
 
 //#define _WIREFRAME
 
+// Enable debugging in release mode
+#pragma optimize( "", off )
+
 //#define HIGHRES_MODE
 #ifdef HIGHRES_MODE
 #define FBSCALE (2.0f)
@@ -1973,6 +1976,34 @@ void CGSH_HleOgl::VertexKick(uint8 nRegister, uint64 nValue)
 			DrawToDepth(m_primitiveType, m_PrimitiveMode);
 		}
 	}
+}
+
+void CGSH_HleOgl::TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y)
+{
+	int blockSizePixels = blockSize * blockSize;
+	uint32* pSourceData = pRGBA;
+	
+	CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMCT32> Indexor(m_pRAM, dbp, dbw);
+	for (int sourceBlockX = 0; sourceBlockX < widthInBlocks; ++sourceBlockX) {
+		for (int sourceBlockY = 0; sourceBlockY < heightInBlocks; ++sourceBlockY) {
+			for (int by = 0; by < blockSize; ++by) {
+				for (int bx = 0; bx < blockSize; ++bx) {
+					auto pPixel = Indexor.GetPixelAddress(bx+x+ sourceBlockX*blockSize, by+y+sourceBlockY*blockSize);
+					*pPixel = *pSourceData;
+					++pSourceData;
+				}
+			}
+		}
+	}
+	auto transferPageSize = CGsPixelFormats::GetPsmPageSize(CGSHandler::PSMCT32);
+
+	uint32 pageCountX = (widthInBlocks*blockSize + transferPageSize.first - 1) / transferPageSize.first;
+	uint32 pageCountY = (heightInBlocks*blockSize + transferPageSize.second - 1) / transferPageSize.second;
+
+	uint32 pageCount = pageCountX * pageCountY;
+	uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
+	uint32 transferOffset = (y / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
+	TexCache_InvalidateTextures(dbp + transferOffset, transferSize);
 }
 
 void CGSH_HleOgl::ProcessImageTransfer()

@@ -19,6 +19,15 @@ public:
 									CGSH_HleOgl();
 	virtual							~CGSH_HleOgl();
 
+	// ----------- Hle additions
+
+	/**
+		Transfers a macroblocked image as returned from sceMpegGetPicture.	
+	*/
+	virtual void					TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y);
+
+	// ---------- end hle additions
+
 	virtual void					LoadState(Framework::CZipArchiveReader&) override;
 	
 	void							ProcessImageTransfer() override;
