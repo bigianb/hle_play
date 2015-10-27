@@ -12,8 +12,8 @@ public:
 
 	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
 
-	virtual void					InitializeImpl();
-	virtual void					ReleaseImpl();
+	virtual void					InitializeImpl() override;
+	virtual void					ReleaseImpl() override;
 
 	CSettingsDialogProvider*		GetSettingsDialogProvider();
 

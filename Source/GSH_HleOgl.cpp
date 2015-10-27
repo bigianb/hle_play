@@ -2004,6 +2004,11 @@ void CGSH_HleOgl::TransferBlockedImage(int blockSize, int widthInBlocks, int hei
 	uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
 	uint32 transferOffset = (y / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
 	TexCache_InvalidateTextures(dbp + transferOffset, transferSize);
+
+	for (const auto& framebuffer : m_framebuffers)
+	{
+		framebuffer->m_cachedArea.Invalidate(dbp + transferOffset, transferSize);
+	}
 }
 
 void CGSH_HleOgl::ProcessImageTransfer()

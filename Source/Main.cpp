@@ -10,11 +10,12 @@
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
 	CPS2VM virtualMachine;
-	HleMainWindow MainWindow(virtualMachine);
+	HleMainWindow mainWindow(virtualMachine);
+	mainWindow.PostConstruct();
 
 	virtualMachine.m_ee->SetExecutor(std::make_unique<BgdaEeExecutor>(virtualMachine.m_ee->m_EE, virtualMachine.m_ee->m_ram, virtualMachine));
 
-	MainWindow.Loop();
+	mainWindow.Loop();
 #ifdef VTUNE_ENABLED
 	iJIT_NotifyEvent(iJVM_EVENT_TYPE_SHUTDOWN, NULL);
 #endif
