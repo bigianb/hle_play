@@ -1984,13 +1984,17 @@ void CGSH_HleOgl::TransferBlockedImage(int blockSize, int widthInBlocks, int hei
 	uint32* pSourceData = pRGBA;
 	
 	CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMCT32> Indexor(m_pRAM, dbp, dbw);
+
 	for (int sourceBlockX = 0; sourceBlockX < widthInBlocks; ++sourceBlockX) {
 		for (int sourceBlockY = 0; sourceBlockY < heightInBlocks; ++sourceBlockY) {
 			for (int by = 0; by < blockSize; ++by) {
+				int sourceY = y + sourceBlockY*blockSize + by;
+				int sourceX = x + sourceBlockX*blockSize;
 				for (int bx = 0; bx < blockSize; ++bx) {
-					auto pPixel = Indexor.GetPixelAddress(bx+x+ sourceBlockX*blockSize, by+y+sourceBlockY*blockSize);
+					auto pPixel = Indexor.GetPixelAddress(sourceX, sourceY);
 					*pPixel = *pSourceData;
 					++pSourceData;
+					++sourceX;
 				}
 			}
 		}

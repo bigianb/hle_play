@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Source\BgdaDrawSpriteBlock.cpp" />
     <ClCompile Include="..\Source\BgdaEeExecutor.cpp" />
     <ClCompile Include="..\Source\BgdaMpegBlock.cpp" />
     <ClCompile Include="..\Source\GSH_HleOgl.cpp" />
@@ -181,6 +182,7 @@
     <ResourceCompile Include="..\..\play\Source\ui_win32\Res.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Source\BgdaDrawSpriteBlock.h" />
     <ClInclude Include="..\Source\BgdaEeExecutor.h" />
     <ClInclude Include="..\Source\BgdaMpegBlock.h" />
     <ClInclude Include="..\Source\GSH_HleOgl.h" />

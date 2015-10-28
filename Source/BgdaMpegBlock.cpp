@@ -4,9 +4,6 @@
 #include "HleVMUtils.h"
 #include "GSH_HleOgl.h"
 
-// Enable debugging in release mode
-#pragma optimize( "", off )
-
 BgdaMpegBlock::BgdaMpegBlock(CMIPS& context, uint32 start, uint32 end, CPS2VM& vm) : CBasicBlock(context, start, end), m_vm(vm)
 {
 	std::cout << "Created Mpeg standard block from " << start << " to " << end << std::endl;
@@ -24,7 +21,10 @@ unsigned int BgdaMpegBlock::Execute()
 	// 0(sp) & 1 == odd.
 	// if odd y = 0x210 else 0x10
 
-	uint8* rgb32 = HleVMUtils::getGPOffsetPointer(m_context, 0xc054);
+	// This is the address of the variable which is of type void*, need to de-reference it and get the pointer.
+	uint32* prgb32 = (uint32*)HleVMUtils::getGPOffsetPointer(m_context, 0xc054);
+	uint8* rgb32 = HleVMUtils::getPointer(m_context, prgb32[0]);
+
 	uint32 frameCount = HleVMUtils::readInt32Indirect(m_context, CMIPS::S0, 8);
 
 	uint32 width = HleVMUtils::readInt32Indirect(m_context, CMIPS::S7, 0x5d80);
