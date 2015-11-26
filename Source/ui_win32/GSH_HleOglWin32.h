@@ -2,6 +2,7 @@
 
 #include "../GSH_HleOgl.h"
 #include "win32/Window.h"
+#include "win32/ModalWindow.h"
 #include "ui_win32/SettingsDialogProvider.h"
 
 class CGSH_HleOglWin32 : public CGSH_HleOgl, public CSettingsDialogProvider
