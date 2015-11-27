@@ -146,6 +146,7 @@
     <ClCompile Include="..\Source\BgdaEeExecutor.cpp" />
     <ClCompile Include="..\Source\BgdaMpegBlock.cpp" />
     <ClCompile Include="..\Source\GSH_HleOgl.cpp" />
+    <ClCompile Include="..\Source\gs\GSH_HleSoftware.cpp" />
     <ClCompile Include="..\Source\HleMainWindow.cpp" />
     <ClCompile Include="..\Source\Main.cpp" />
     <ClCompile Include="..\Source\ui_win32\GSH_HleOglWin32.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="..\Source\BgdaEeExecutor.h" />
     <ClInclude Include="..\Source\BgdaMpegBlock.h" />
     <ClInclude Include="..\Source\GSH_HleOgl.h" />
+    <ClInclude Include="..\Source\gs\GSH_HleSoftware.h" />
     <ClInclude Include="..\Source\HleMainWindow.h" />
     <ClInclude Include="..\Source\HleVMUtils.h" />
     <ClInclude Include="..\Source\NopBlock.h" />

@@ -1,7 +1,7 @@
 #include "HleMainWindow.h"
-#include "ui_win32/GSH_HleOglWin32.h"
+#include "gs/GSH_HleSoftware.h"
 
 void HleMainWindow::CreateGSHandler()
 {
-	m_virtualMachine.CreateGSHandler(CGSH_HleOglWin32::GetFactoryFunction(m_outputWnd));
+	m_virtualMachine.CreateGSHandler(CGSH_HleSoftware::GetFactoryFunction(m_outputWnd));
 }
