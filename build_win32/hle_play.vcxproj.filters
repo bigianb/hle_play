@@ -88,5 +88,8 @@
     <ClInclude Include="..\Source\ui_win32\GSH_HleOglWin32.h">
       <Filter>Header Files\gs</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\gs\GSH_Hle.h">
+      <Filter>Header Files\gs</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

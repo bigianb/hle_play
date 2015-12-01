@@ -2,6 +2,7 @@
 
 #include <list>
 #include <unordered_map>
+#include "gs/GSH_Hle.h"
 #include "gs/GSHandler.h"
 #include "gs/GsCachedArea.h"
 #include "opengl/OpenGlDef.h"
@@ -13,7 +14,7 @@
 #define PREF_CGSH_HleOgl_FORCEBILINEARTEXTURES		"renderer.hle.opengl.forcebilineartextures"
 #define PREF_CGSH_HleOgl_FIXSMALLZVALUES			"renderer.hle.opengl.fixsmallzvalues"
 
-class CGSH_HleOgl : public CGSHandler
+class CGSH_HleOgl : public CGSHandler, public CGHSHle
 {
 public:
 									CGSH_HleOgl();

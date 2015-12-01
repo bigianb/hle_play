@@ -2,7 +2,7 @@
 #include "iostream"
 #include "PS2VM.h"
 #include "HleVMUtils.h"
-#include "GSH_HleOgl.h"
+#include "gs/GSH_Hle.h"
 
 // Enable debugging in release mode
 #pragma optimize( "", off )
@@ -13,7 +13,7 @@ BgdaDrawSpriteBlock::BgdaDrawSpriteBlock(CMIPS& context, uint32 start, uint32 en
 
 unsigned int BgdaDrawSpriteBlock::Execute()
 {
-	CGSH_HleOgl* gs = (CGSH_HleOgl*)m_vm.GetGSHandler();
+	CGHSHle* gs = (CGHSHle*)m_vm.GetGSHandler();
 
 	uint8* pTexData = HleVMUtils::getOffsetPointer(m_context, CMIPS::A0, 0);
 	uint32 xpos = m_context.m_State.nGPR[CMIPS::A1].nV0;

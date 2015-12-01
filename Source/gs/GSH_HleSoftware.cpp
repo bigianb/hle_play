@@ -1,14 +1,23 @@
 #include "GSH_HleSoftware.h"
 #include "PtrMacro.h"
+#include <d3dx9math.h>
 
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
 
-using namespace Framework;
-using namespace std;
-using namespace std::tr1;
+struct CUSTOMVERTEX
+{
+	float x, y, z;
+	DWORD color;
+	float u, v;
+};
 
-CGSH_HleSoftware::CGSH_HleSoftware(Win32::CWindow* outputWindow) :
+#define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+
+#define FB_WIDTH_PIX 640
+#define FB_HEIGHT_PIX 400
+
+CGSH_HleSoftware::CGSH_HleSoftware(Framework::Win32::CWindow* outputWindow) :
 	m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow)),
 m_nWidth(0),
 m_nHeight(0)
@@ -35,12 +44,12 @@ void CGSH_HleSoftware::ReleaseImpl()
 
 }
 
-CGSHandler::FactoryFunction CGSH_HleSoftware::GetFactoryFunction(Win32::CWindow* pOutputWnd)
+CGSHandler::FactoryFunction CGSH_HleSoftware::GetFactoryFunction(Framework::Win32::CWindow* pOutputWnd)
 {
-    return bind(&CGSH_HleSoftware::GSHandlerFactory, pOutputWnd);
+    return std::bind(&CGSH_HleSoftware::GSHandlerFactory, pOutputWnd);
 }
 
-CGSHandler* CGSH_HleSoftware::GSHandlerFactory(Win32::CWindow* pOutputWnd)
+CGSHandler* CGSH_HleSoftware::GSHandlerFactory(Framework::Win32::CWindow* pOutputWnd)
 {
     return new CGSH_HleSoftware(pOutputWnd);
 }
@@ -173,8 +182,22 @@ bool CGSH_HleSoftware::TestDevice()
 
 void CGSH_HleSoftware::FlipImpl()
 {
+	displayFrameBuffer();
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
+}
+
+void CGSH_HleSoftware::displayFrameBuffer()
+{
+	if (m_framebufferTexture.IsEmpty()) {
+		D3DXCreateTexture(m_device, FB_WIDTH_PIX, FB_HEIGHT_PIX, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &m_framebufferTexture);
+	}
+
+	// Display the framebuffer texture
+	//
+	// TexUploader_Psm32(tex0, texA, result.texture);
+
+	SetReadCircuitMatrix(FB_WIDTH_PIX, FB_HEIGHT_PIX);
 }
 
 void CGSH_HleSoftware::ProcessImageTransfer()
@@ -204,5 +227,33 @@ void CGSH_HleSoftware::ProcessLocalToLocalTransfer()
 void CGSH_HleSoftware::ReadFramebuffer(uint32, uint32, void*)
 {
 
+}
+
+void CGSH_HleSoftware::SetReadCircuitMatrix(int nWidth, int nHeight)
+{
+	//Setup projection matrix
+	{
+		D3DXMATRIX projMatrix;
+		D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(nWidth), static_cast<FLOAT>(nHeight), 1.0f, 0.0f);
+		m_device->SetTransform(D3DTS_PROJECTION, &projMatrix);
+	}
+
+	//Setup view matrix
+	{
+		D3DXMATRIX viewMatrix;
+		D3DXMatrixLookAtLH(&viewMatrix,
+			&D3DXVECTOR3(0.0f, 0.0f, 1.0f),		// eye
+			&D3DXVECTOR3(0.0f, 0.0f, 0.0f),		// at (look along -ve z axis)
+			&D3DXVECTOR3(0.0f, -1.0f, 0.0f));	// up (+ve y is down)
+
+		m_device->SetTransform(D3DTS_VIEW, &viewMatrix);
+	}
+
+	//Setup world matrix to make (0,0) the top left corner rather than the centre
+	{
+		D3DXMATRIX worldMatrix;
+		D3DXMatrixTranslation(&worldMatrix, -static_cast<FLOAT>(nWidth) / 2.0f, -static_cast<FLOAT>(nHeight) / 2.0f, 0);
+		m_device->SetTransform(D3DTS_WORLD, &worldMatrix);
+	}
 }
 

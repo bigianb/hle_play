@@ -41,6 +41,10 @@ private:
 	D3DPRESENT_PARAMETERS			CreatePresentParams();
 	void							PresentBackbuffer();
 
+	TexturePtr m_framebufferTexture;
+	void displayFrameBuffer();
+	void SetReadCircuitMatrix(int nWidth, int nHeight);
+
 	typedef Framework::Win32::CComPtr<IDirect3D9> Direct3DPtr;
 	typedef Framework::Win32::CComPtr<IDirect3DDevice9> DevicePtr;
 
