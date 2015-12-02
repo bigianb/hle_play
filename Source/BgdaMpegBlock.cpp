@@ -3,6 +3,7 @@
 #include "PS2VM.h"
 #include "HleVMUtils.h"
 #include "gs/GSH_Hle.h"
+#include "gs/GSH_HleSoftware.h"
 
 BgdaMpegBlock::BgdaMpegBlock(CMIPS& context, uint32 start, uint32 end, CPS2VM& vm) : CBasicBlock(context, start, end), m_vm(vm)
 {
@@ -11,7 +12,7 @@ BgdaMpegBlock::BgdaMpegBlock(CMIPS& context, uint32 start, uint32 end, CPS2VM& v
 
 unsigned int BgdaMpegBlock::Execute()
 {
-	CGHSHle* gs = (CGHSHle*)m_vm.GetGSHandler();
+	CGHSHle* gs = dynamic_cast<CGHSHle*>(m_vm.GetGSHandler());
 	
 	//s0= mpegDecoderInfo struct
 	// 8(s0) = frame count

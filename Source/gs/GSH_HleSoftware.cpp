@@ -5,6 +5,9 @@
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
 
+// Enable debugging in release mode
+#pragma optimize( "", off )
+
 struct CUSTOMVERTEX
 {
 	float x, y, z;
@@ -103,6 +106,8 @@ void CGSH_HleSoftware::OnDeviceReset()
 	m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
 	m_device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 
+	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_quadVb, NULL);
+	assert(SUCCEEDED(result));
 }
 
 void CGSH_HleSoftware::OnDeviceResetting()
@@ -189,13 +194,7 @@ void CGSH_HleSoftware::FlipImpl()
 
 void CGSH_HleSoftware::displayFrameBuffer()
 {
-	if (m_framebufferTexture.IsEmpty()) {
-		D3DXCreateTexture(m_device, FB_WIDTH_PIX, FB_HEIGHT_PIX, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &m_framebufferTexture);
-	}
-
-	// Display the framebuffer texture
-	//
-	// TexUploader_Psm32(tex0, texA, result.texture);
+	
 
 	SetReadCircuitMatrix(FB_WIDTH_PIX, FB_HEIGHT_PIX);
 }
@@ -256,4 +255,58 @@ void CGSH_HleSoftware::SetReadCircuitMatrix(int nWidth, int nHeight)
 		m_device->SetTransform(D3DTS_WORLD, &worldMatrix);
 	}
 }
+
+void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y)
+{
+	TexturePtr tex;
+	int pixw = blockSize * widthInBlocks;
+	int pixh = blockSize * heightInBlocks;
+	D3DXCreateTexture(m_device, pixw, pixh, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &tex);
+	m_device->SetTexture(0, tex);
+
+	DWORD color0 = D3DCOLOR_ARGB(0,0,0,0);
+	DWORD color1 = D3DCOLOR_ARGB(0,0,0,0);
+
+	float nU1 = 0;
+	float nU2 = 1.0;
+	float nV1 = 0.0;
+	float nV2 = 1.0;
+
+	float nZ = 0.0;
+	float nX1 = 0.0;
+	float nY1 = 0.0;
+	float nX2 = pixw;
+	float nY2 = pixh;
+
+	CUSTOMVERTEX vertices[] =
+	{
+		{ nX1,	nY2,	nZ,		color0,		nU1,	nV2 },
+		{ nX1,	nY1,	nZ,		color0,		nU1,	nV1 },
+		{ nX2,	nY2,	nZ,		color1,		nU2,	nV2 },
+		{ nX2,	nY1,	nZ,		color1,		nU2,	nV1 },
+	};
+
+	HRESULT result;
+	uint8* buffer = NULL;
+	result = m_quadVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+	assert(SUCCEEDED(result));
+	{
+		memcpy(buffer, vertices, sizeof(vertices));
+	}
+	result = m_quadVb->Unlock();
+	assert(SUCCEEDED(result));
+
+	// select which vertex format we are using
+	result = m_device->SetFVF(CUSTOMFVF);
+	assert(SUCCEEDED(result));
+
+	// select the vertex buffer to display
+	result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
+	assert(SUCCEEDED(result));
+
+	// copy the vertex buffer to the back buffer
+	result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	assert(SUCCEEDED(result));
+}
+
 
