@@ -45,9 +45,6 @@ private:
 
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 
-    unsigned int                    m_nWidth;
-    unsigned int                    m_nHeight;
-
 	void							BeginScene();
 	void							EndScene();
 	bool							TestDevice();
@@ -61,13 +58,13 @@ private:
 	void displayFrameBuffer();
 	void SetReadCircuitMatrix(int nWidth, int nHeight);
 
-
-
 	COutputWnd*						m_outputWnd;
 	Direct3DPtr						m_d3d;
 	DevicePtr						m_device;
 	VertexBufferPtr					m_quadVb;
 	bool							m_sceneBegun;
+
+	TexturePtr blockedTex;
 };
 
 

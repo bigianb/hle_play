@@ -18,12 +18,10 @@ struct CUSTOMVERTEX
 #define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
 #define FB_WIDTH_PIX 640
-#define FB_HEIGHT_PIX 400
+#define FB_HEIGHT_PIX 480
 
 CGSH_HleSoftware::CGSH_HleSoftware(Framework::Win32::CWindow* outputWindow) :
-	m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow)),
-m_nWidth(0),
-m_nHeight(0)
+	m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
 {
 
 }
@@ -38,7 +36,7 @@ void CGSH_HleSoftware::InitializeImpl()
 	m_d3d = Direct3DPtr(Direct3DCreate9(D3D_SDK_VERSION));
 	CreateDevice();
 
-	m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+	m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0x40, 0x40, 0x40), 1.0f, 0);
 	PresentBackbuffer();
 }
 
@@ -78,8 +76,8 @@ void CGSH_HleSoftware::CreateDevice()
 D3DPRESENT_PARAMETERS CGSH_HleSoftware::CreatePresentParams()
 {
 	RECT clientRect = m_outputWnd->GetClientRect();
-	unsigned int outputWidth = clientRect.right;
-	unsigned int outputHeight = clientRect.bottom;
+	unsigned int outputWidth = FB_WIDTH_PIX; // clientRect.right;
+	unsigned int outputHeight = FB_HEIGHT_PIX;// clientRect.bottom;
 
 	D3DPRESENT_PARAMETERS d3dpp;
 	memset(&d3dpp, 0, sizeof(D3DPRESENT_PARAMETERS));
@@ -258,16 +256,48 @@ void CGSH_HleSoftware::SetReadCircuitMatrix(int nWidth, int nHeight)
 
 void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y)
 {
-	TexturePtr tex;
+	HRESULT result;
 	int pixw = blockSize * widthInBlocks;
 	int pixh = blockSize * heightInBlocks;
-	D3DXCreateTexture(m_device, pixw, pixh, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &tex);
-	m_device->SetTexture(0, tex);
+	if (blockedTex.IsEmpty()) {
+		D3DXMATRIX textureMatrix;
+		D3DXMatrixIdentity(&textureMatrix);
+		D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
+		m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
 
-	DWORD color0 = D3DCOLOR_ARGB(0,0,0,0);
-	DWORD color1 = D3DCOLOR_ARGB(0,0,0,0);
+		result = m_device->CreateTexture(pixw, pixh, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &blockedTex, NULL);
+	}
+	D3DLOCKED_RECT rect;
+	result = blockedTex->LockRect(0, &rect, NULL, 0);
 
-	float nU1 = 0;
+	uint32* pDst = reinterpret_cast<uint32*>(rect.pBits);
+	uint32* pSrc = pRGBA;
+	unsigned int nDstPitch = rect.Pitch / 4;
+
+	for (unsigned int i = 0; i < widthInBlocks; i++)
+	{
+		for (unsigned int j = 0; j < heightInBlocks; j++)
+		{
+			uint32* blockDestPtr = pDst + nDstPitch * j * blockSize + i * blockSize;
+			for (int blocky = 0; blocky < blockSize; ++blocky) {
+				for (int blockx = 0; blockx < blockSize; ++blockx) {
+					uint32 abgr = *pSrc++;
+					uint32 argb = (abgr & 0xFF00FF00) | ((abgr & 0xFF) << 16) | ((abgr >> 16) & 0xFF);
+					blockDestPtr[blockx] = argb;
+				}
+				blockDestPtr += nDstPitch;
+			}
+		}
+	}
+
+	result = blockedTex->UnlockRect(0);
+	
+	m_device->SetTexture(0, blockedTex);
+
+	DWORD color0 = D3DCOLOR_ARGB(0xFF, 0xFF, 0xFF, 0xFF);
+	DWORD color1 = D3DCOLOR_ARGB(0xFF, 0xFF, 0xFF, 0xFF);
+
+	float nU1 = 0.0;
 	float nU2 = 1.0;
 	float nV1 = 0.0;
 	float nV2 = 1.0;
@@ -286,7 +316,6 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 		{ nX2,	nY1,	nZ,		color1,		nU2,	nV1 },
 	};
 
-	HRESULT result;
 	uint8* buffer = NULL;
 	result = m_quadVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
 	assert(SUCCEEDED(result));
