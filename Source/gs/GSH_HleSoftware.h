@@ -22,6 +22,8 @@ public:
 	*/
 	void	TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y) override;
 
+	void	CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData) override;
+
 	// ---------- end hle additions
 
 protected:

@@ -82,7 +82,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include;$(SolutionDir)../../../frostbite</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_DEBUG;DEBUGGER_INCLUDED;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
@@ -96,7 +96,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include;$(SolutionDir)../../../frostbite</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_DEBUG;DEBUGGER_INCLUDED;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
@@ -116,7 +116,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include;$(SolutionDir)../../../frostbite</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
@@ -134,7 +134,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../../play/Source;$(SolutionDir)../../framework/include;$(SolutionDir)../../codegen/include;$(DXSDK_DIR)/include;$(SolutionDir)../../../frostbite</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;NDEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions);WIN32</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
@@ -157,6 +157,9 @@
     <ClCompile Include="..\Source\ui_win32\HleRendererSettingsWnd.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\frostbite\snowlib\snowlib.vcxproj">
+      <Project>{b04aa50a-6c64-4bdc-a6fd-69dd6fd099b3}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\codegen\build_win32\CodeGen.vcxproj">
       <Project>{e3521577-bfc9-4532-9b70-1f8c0d546f4a}</Project>
     </ProjectReference>

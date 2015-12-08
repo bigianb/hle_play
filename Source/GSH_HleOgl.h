@@ -27,6 +27,8 @@ public:
 	*/
 	virtual void					TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y);
 
+	virtual void	DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData) override {};
+
 	// ---------- end hle additions
 
 	virtual void					LoadState(Framework::CZipArchiveReader&) override;

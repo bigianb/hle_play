@@ -36,6 +36,6 @@ unsigned int BgdaMpegBlock::Execute()
 	gs->TransferBlockedImage(0x10, width / 16, height / 16, (uint32*)rgb32, 0, 0x0a, 0, odd ? 0x210 : 0x10);
 
 	m_context.m_State.nPC = 0x00155024;
-	return 1000;
+	return 5000;
 }
 

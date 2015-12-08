@@ -2,6 +2,9 @@
 #include "PtrMacro.h"
 #include <d3dx9math.h>
 
+#include "snowlib/TexDecoder.h"
+#include "snowlib/Texture.h"
+
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
 
@@ -338,4 +341,91 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 	assert(SUCCEEDED(result));
 }
 
+Texture* getBGDATexture(int width, int height, uint8* texGsPacketData)
+{
+	TexDecoder decoder;
+	Texture* tex = decoder.decode(width, height, texGsPacketData, 0);
+	return tex;
+}
+
+void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData)
+{
+	HRESULT result;
+	TexturePtr tex;
+	
+	D3DXMATRIX textureMatrix;
+	D3DXMatrixIdentity(&textureMatrix);
+	D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
+	m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
+
+	Texture* rawTexture = getBGDATexture(width, height, texGsPacketData);
+
+	result = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &tex, NULL);
+	
+	D3DLOCKED_RECT rect;
+	result = tex->LockRect(0, &rect, NULL, 0);
+	uint8* pDst = (uint8*)rect.pBits;
+
+	for (int y = 0; y < height; ++y) {
+		uint8* p = rawTexture->data + y * rawTexture->widthPixels * 4;
+		uint8* pDRow = pDst;
+		for (int x = 0; x < width; ++x) { 
+			pDRow[0] = p[2];
+			pDRow[1] = p[1];
+			pDRow[2] = p[0];
+			pDRow[3] = p[3];
+			p += 4;
+			pDRow += 4;
+		}
+		pDst += rect.Pitch;
+	}
+
+	result = tex->UnlockRect(0);
+
+	delete rawTexture; rawTexture = nullptr;
+
+	m_device->SetTexture(0, tex);
+
+	DWORD color = (vertexRGBA >> 8) | ((vertexRGBA & 0xFF) << 24);
+	
+	float nU1 = 0.0;
+	float nU2 = 1.0;
+	float nV1 = 0.0;
+	float nV2 = 1.0;
+
+	float nZ = 0.0;
+	float nX1 = xpos;
+	float nY1 = ypos;
+	float nX2 = xpos + width;
+	float nY2 = ypos + height;
+
+	CUSTOMVERTEX vertices[] =
+	{
+		{ nX1,	nY2,	nZ,		color,		nU1,	nV2 },
+		{ nX1,	nY1,	nZ,		color,		nU1,	nV1 },
+		{ nX2,	nY2,	nZ,		color,		nU2,	nV2 },
+		{ nX2,	nY1,	nZ,		color,		nU2,	nV1 },
+	};
+
+	uint8* buffer = NULL;
+	result = m_quadVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+	assert(SUCCEEDED(result));
+	{
+		memcpy(buffer, vertices, sizeof(vertices));
+	}
+	result = m_quadVb->Unlock();
+	assert(SUCCEEDED(result));
+
+	// select which vertex format we are using
+	result = m_device->SetFVF(CUSTOMFVF);
+	assert(SUCCEEDED(result));
+
+	// select the vertex buffer to display
+	result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
+	assert(SUCCEEDED(result));
+
+	// copy the vertex buffer to the back buffer
+	result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	assert(SUCCEEDED(result));
+}
 
