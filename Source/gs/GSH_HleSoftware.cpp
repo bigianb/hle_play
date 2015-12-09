@@ -370,7 +370,7 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	for (int y = 0; y < height; ++y) {
 		int ysrc = y;
 		if (interlaced) {
-			if (y & 0x01 == 0x01) {
+			if ((y & 0x01) == 0x01) {
 				ysrc = mid + y / 2;
 			}
 			else {
@@ -383,7 +383,7 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 			pDRow[0] = p[2];
 			pDRow[1] = p[1];
 			pDRow[2] = p[0];
-			pDRow[3] = p[3];
+			pDRow[3] = p[3] >= 0x80 ? 0xFF : p[3] * 2;
 			p += 4;
 			pDRow += 4;
 		}
