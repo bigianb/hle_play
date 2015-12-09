@@ -15,6 +15,8 @@ unsigned int BgdaDrawSpriteBlock::Execute()
 {
 	CGHSHle* gs = dynamic_cast<CGHSHle*>(m_vm.GetGSHandler());
 
+	uint32 isInterlaced = HleVMUtils::readInt32Indirect(m_context, CMIPS::GP, 0xa4d0);
+
 	uint8* pTexData = HleVMUtils::getOffsetPointer(m_context, CMIPS::A0, 0);
 	uint32 xpos = m_context.m_State.nGPR[CMIPS::A1].nV0;
 	uint32 ypos = m_context.m_State.nGPR[CMIPS::A2].nV0;
@@ -32,7 +34,7 @@ unsigned int BgdaDrawSpriteBlock::Execute()
 
 	uint32 gsStartPtr = *(uint32*)(pTexData + 0x10);
 	
-	gs->DrawSprite(xpos, ypos, texWidth, texHeight, vertexRGBA, HleVMUtils::getPointer(m_context, gsStartPtr));
+	gs->DrawSprite(xpos, ypos, texWidth, texHeight, vertexRGBA, HleVMUtils::getPointer(m_context, gsStartPtr), isInterlaced != 0);
 
 	m_context.m_State.nPC = m_context.m_State.nGPR[CMIPS::RA].nV0;
 	return 1000;

@@ -21,7 +21,7 @@ struct CUSTOMVERTEX
 #define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
 #define FB_WIDTH_PIX 640
-#define FB_HEIGHT_PIX 480
+#define FB_HEIGHT_PIX 512
 
 CGSH_HleSoftware::CGSH_HleSoftware(Framework::Win32::CWindow* outputWindow) :
 	m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
@@ -277,9 +277,9 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 	uint32* pSrc = pRGBA;
 	unsigned int nDstPitch = rect.Pitch / 4;
 
-	for (unsigned int i = 0; i < widthInBlocks; i++)
+	for (int i = 0; i < widthInBlocks; i++)
 	{
-		for (unsigned int j = 0; j < heightInBlocks; j++)
+		for (int j = 0; j < heightInBlocks; j++)
 		{
 			uint32* blockDestPtr = pDst + nDstPitch * j * blockSize + i * blockSize;
 			for (int blocky = 0; blocky < blockSize; ++blocky) {
@@ -308,8 +308,8 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 	float nZ = 0.0;
 	float nX1 = 0.0;
 	float nY1 = 0.0;
-	float nX2 = pixw;
-	float nY2 = pixh;
+	float nX2 = (float)pixw;
+	float nY2 = (float)pixh;
 
 	CUSTOMVERTEX vertices[] =
 	{
@@ -348,7 +348,7 @@ Texture* getBGDATexture(int width, int height, uint8* texGsPacketData)
 	return tex;
 }
 
-void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData)
+void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced)
 {
 	HRESULT result;
 	TexturePtr tex;
@@ -366,8 +366,18 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	result = tex->LockRect(0, &rect, NULL, 0);
 	uint8* pDst = (uint8*)rect.pBits;
 
+	int mid = height / 2;
 	for (int y = 0; y < height; ++y) {
-		uint8* p = rawTexture->data + y * rawTexture->widthPixels * 4;
+		int ysrc = y;
+		if (interlaced) {
+			if (y & 0x01 == 0x01) {
+				ysrc = mid + y / 2;
+			}
+			else {
+				ysrc = y / 2;
+			}
+		}
+		uint8* p = rawTexture->data + ysrc * rawTexture->widthPixels * 4;
 		uint8* pDRow = pDst;
 		for (int x = 0; x < width; ++x) { 
 			pDRow[0] = p[2];
