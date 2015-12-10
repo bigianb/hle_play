@@ -107,6 +107,12 @@ void CGSH_HleSoftware::OnDeviceReset()
 	m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
 	m_device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 
+	m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	m_device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, D3DZB_TRUE);
+
+	m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
 	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_quadVb, NULL);
 	assert(SUCCEEDED(result));
 }
@@ -285,7 +291,7 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 			for (int blocky = 0; blocky < blockSize; ++blocky) {
 				for (int blockx = 0; blockx < blockSize; ++blockx) {
 					uint32 abgr = *pSrc++;
-					uint32 argb = (abgr & 0xFF00FF00) | ((abgr & 0xFF) << 16) | ((abgr >> 16) & 0xFF);
+					uint32 argb = 0xFF000000 | (abgr & 0x0000FF00) | ((abgr & 0xFF) << 16) | ((abgr >> 16) & 0xFF);
 					blockDestPtr[blockx] = argb;
 				}
 				blockDestPtr += nDstPitch;
@@ -380,10 +386,10 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 		uint8* p = rawTexture->data + ysrc * rawTexture->widthPixels * 4;
 		uint8* pDRow = pDst;
 		for (int x = 0; x < width; ++x) { 
-			pDRow[0] = p[2];
-			pDRow[1] = p[1];
-			pDRow[2] = p[0];
-			pDRow[3] = p[3] >= 0x80 ? 0xFF : p[3] * 2;
+			pDRow[0] = p[2] > 0x7F ? 0xFF : p[2] * 2;
+			pDRow[1] = p[1] > 0x7F ? 0xFF : p[1] * 2;
+			pDRow[2] = p[0] > 0x7F ? 0xFF : p[0] * 2;
+			pDRow[3] = p[3] > 0x7F ? 0xFF : p[3] * 2;
 			p += 4;
 			pDRow += 4;
 		}
@@ -396,8 +402,14 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 
 	m_device->SetTexture(0, tex);
 
-	DWORD color = (vertexRGBA >> 8) | ((vertexRGBA & 0xFF) << 24);
-	
+	// TODO: Figure out the correct blending mode.
+	//DWORD color = 0xFFFFFFFF; // (vertexRGBA >> 8) | ((vertexRGBA & 0xFF) << 24);
+	//uint32 color = 0xFF000000 | (vertexRGBA & 0x0000FF00) | ((vertexRGBA & 0xFF) << 16) | ((vertexRGBA >> 16) & 0xFF);
+	uint32 color = (vertexRGBA & 0xFF00FF00) | ((vertexRGBA & 0xFF) << 16) | ((vertexRGBA >> 16) & 0xFF);
+	if (vertexRGBA == 0x3f000000) {
+		color = 0x7FFFFFFF;
+	}
+
 	float nU1 = 0.0;
 	float nU2 = 1.0;
 	float nV1 = 0.0;
