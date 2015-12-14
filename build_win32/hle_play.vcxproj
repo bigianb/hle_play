@@ -188,6 +188,7 @@
   <ItemGroup>
     <ResourceCompile Include="..\..\play\Source\ui_win32\ElfViewRes.rc" />
     <ResourceCompile Include="..\..\play\Source\ui_win32\Res.rc" />
+    <ResourceCompile Include="..\Source\ui_win32\HleRes.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\BgdaDrawSpriteBlock.h" />
@@ -201,6 +202,7 @@
     <ClInclude Include="..\Source\NopBlock.h" />
     <ClInclude Include="..\Source\ui_win32\GSH_HleOglWin32.h" />
     <ClInclude Include="..\Source\ui_win32\HleRendererSettingsWnd.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

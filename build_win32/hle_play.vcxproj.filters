@@ -56,6 +56,9 @@
     <ResourceCompile Include="..\..\play\Source\ui_win32\ElfViewRes.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="..\Source\ui_win32\HleRes.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\HleMainWindow.h">
@@ -90,6 +93,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\gs\GSH_Hle.h">
       <Filter>Header Files\gs</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

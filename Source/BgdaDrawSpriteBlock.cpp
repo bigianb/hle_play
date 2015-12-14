@@ -34,7 +34,7 @@ unsigned int BgdaDrawSpriteBlock::Execute()
 
 	uint32 gsStartPtr = *(uint32*)(pTexData + 0x10);
 	
-	gs->DrawSprite(xpos, ypos, texWidth, texHeight, vertexRGBA, HleVMUtils::getPointer(m_context, gsStartPtr), isInterlaced != 0);
+	gs->DrawSprite(xpos, ypos, texWidth, texHeight, vertexRGBA, HleVMUtils::getPointer(m_context, gsStartPtr), isInterlaced != 0, 0x44);
 
 	m_context.m_State.nPC = m_context.m_State.nGPR[CMIPS::RA].nV0;
 	return 1000;

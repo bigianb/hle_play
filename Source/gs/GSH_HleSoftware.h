@@ -6,6 +6,7 @@
 #include "win32/ComPtr.h"
 #include "ui_win32/OutputWnd.h"
 #include <d3d9.h>
+#include <d3dx9.h>
 
 class CGSH_HleSoftware : public CGSHandler, public CGHSHle
 {
@@ -22,7 +23,7 @@ public:
 	*/
 	void	TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y) override;
 
-	void	CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced) override;
+	void	CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg) override;
 
 	// ---------- end hle additions
 
@@ -38,7 +39,8 @@ private:
 	typedef Framework::Win32::CComPtr<IDirect3DDevice9> DevicePtr;
 	typedef Framework::Win32::CComPtr<IDirect3DTexture9> TexturePtr;
 	typedef Framework::Win32::CComPtr<IDirect3DSurface9> SurfacePtr;
-	
+	typedef Framework::Win32::CComPtr<ID3DXEffect> EffectPtr;
+
 	static CGSHandler*              GSHandlerFactory(Framework::Win32::CWindow*);
     
 	void							ProcessImageTransfer() override;
@@ -59,7 +61,11 @@ private:
 	TexturePtr m_framebufferTexture;
 	void displayFrameBuffer();
 	void SetReadCircuitMatrix(int nWidth, int nHeight);
+	void SetupBlendingFunction(uint64 alphaReg);
 
+	EffectPtr						CreateEffectFromResource(const TCHAR*);
+
+	EffectPtr						m_mainFx;
 	COutputWnd*						m_outputWnd;
 	Direct3DPtr						m_d3d;
 	DevicePtr						m_device;

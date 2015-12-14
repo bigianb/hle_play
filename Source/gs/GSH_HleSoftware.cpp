@@ -354,11 +354,19 @@ Texture* getBGDATexture(int width, int height, uint8* texGsPacketData)
 	return tex;
 }
 
-void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced)
+static
+uint8 MulBy2Clamp(uint8 nValue)
+{
+	return (nValue > 0x7F) ? 0xFF : (nValue << 1);
+}
+
+void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg)
 {
 	HRESULT result;
 	TexturePtr tex;
 	
+	SetupBlendingFunction(alphaReg);
+
 	D3DXMATRIX textureMatrix;
 	D3DXMatrixIdentity(&textureMatrix);
 	D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
@@ -402,13 +410,7 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 
 	m_device->SetTexture(0, tex);
 
-	// TODO: Figure out the correct blending mode.
-	//DWORD color = 0xFFFFFFFF; // (vertexRGBA >> 8) | ((vertexRGBA & 0xFF) << 24);
-	//uint32 color = 0xFF000000 | (vertexRGBA & 0x0000FF00) | ((vertexRGBA & 0xFF) << 16) | ((vertexRGBA >> 16) & 0xFF);
 	uint32 color = (vertexRGBA & 0xFF00FF00) | ((vertexRGBA & 0xFF) << 16) | ((vertexRGBA >> 16) & 0xFF);
-	if (vertexRGBA == 0x3f000000) {
-		color = 0x7FFFFFFF;
-	}
 
 	float nU1 = 0.0;
 	float nU2 = 1.0;
@@ -451,3 +453,114 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	assert(SUCCEEDED(result));
 }
 
+void CGSH_HleSoftware::SetupBlendingFunction(uint64 alphaReg)
+{
+	auto alpha = make_convertible<ALPHA>(alphaReg);
+
+	m_device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, D3DZB_TRUE);
+	m_device->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
+	m_device->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
+
+	if ((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
+	{
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	}
+	else if ((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
+	{
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_DESTALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVDESTALPHA);
+	}
+	else if ((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
+	{
+		//(Cs - Cd) * FIX + Cd
+		//		-> FIX * Cs + (1 - FIX) * Cd
+
+		uint8 fix = MulBy2Clamp(alpha.nFix);
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
+		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
+	}
+	else if ((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1) && (alpha.nFix == 0x80))
+	{
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	}
+	else if ((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
+	{
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	}
+	else if ((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
+	{
+		//(Cd - Cs) * As + Cs
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
+	}
+	else if ((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
+	{
+		//Cd * As
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
+
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	}
+	else if ((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CD) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//2101 -> Cd * (1 - As)
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	}
+	else if ((alpha.nA == 2) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
+	{
+		//(0 - Cd) * FIX + Cd 
+		//		-> 0 * Cs + (1 - FIX) * Cd
+
+		uint8 fix = MulBy2Clamp(alpha.nFix);
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
+		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
+	}
+	else if ((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nD == ALPHABLEND_ABD_CS))
+	{
+		//22*0 -> Cs (No blend)
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	}
+	else
+	{
+		assert(0);
+		//Default blending
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	}
+}
+
+CGSH_HleSoftware::EffectPtr CGSH_HleSoftware::CreateEffectFromResource(const TCHAR* resourceName)
+{
+	HRESULT result = S_OK;
+
+	HRSRC shaderResourceInfo = FindResource(GetModuleHandle(nullptr), resourceName, _T("TEXTFILE"));
+	assert(shaderResourceInfo != nullptr);
+
+	HGLOBAL shaderResourceHandle = LoadResource(GetModuleHandle(nullptr), shaderResourceInfo);
+	DWORD shaderResourceSize = SizeofResource(GetModuleHandle(nullptr), shaderResourceInfo);
+
+	const char* shaderData = reinterpret_cast<const char*>(LockResource(shaderResourceHandle));
+
+	EffectPtr effect;
+	Framework::Win32::CComPtr<ID3DXBuffer> errors;
+	result = D3DXCreateEffect(m_device, shaderData, shaderResourceSize, nullptr, nullptr, 0, nullptr, &effect, &errors);
+	if (!errors.IsEmpty())
+	{
+		std::string errorText(reinterpret_cast<const char*>(errors->GetBufferPointer()), reinterpret_cast<const char*>(errors->GetBufferPointer()) + errors->GetBufferSize());
+		OutputDebugStringA("Failed to compile shader:\r\n");
+		OutputDebugStringA(errorText.c_str());
+	}
+	assert(SUCCEEDED(result));
+
+	UnlockResource(shaderResourceHandle);
+
+	return effect;
+}
