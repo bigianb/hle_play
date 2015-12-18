@@ -5,6 +5,8 @@
 #include "snowlib/TexDecoder.h"
 #include "snowlib/Texture.h"
 
+#include "../ui_win32/hle_resource.h"
+
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
 
@@ -18,15 +20,13 @@ struct CUSTOMVERTEX
 	float u, v;
 };
 
-#define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
-
 #define FB_WIDTH_PIX 640
 #define FB_HEIGHT_PIX 512
 
 CGSH_HleSoftware::CGSH_HleSoftware(Framework::Win32::CWindow* outputWindow) :
 	m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
 {
-
+	
 }
 
 CGSH_HleSoftware::~CGSH_HleSoftware()
@@ -69,6 +69,8 @@ void CGSH_HleSoftware::CreateDevice()
 		&presentParams,
 		&m_device);
 	assert(SUCCEEDED(result));
+
+	m_mainFx = CreateEffectFromResource(MAKEINTRESOURCE(IDR_HLEMAIN_SHADER));
 
 	OnDeviceReset();
 
@@ -113,8 +115,44 @@ void CGSH_HleSoftware::OnDeviceReset()
 	m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_quadVb, NULL);
+	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &m_quadVb, nullptr);
 	assert(SUCCEEDED(result));
+
+	{
+		std::vector<D3DVERTEXELEMENT9> vertexElements;
+
+		{
+			D3DVERTEXELEMENT9 element = {};
+			element.Offset = offsetof(CUSTOMVERTEX, x);
+			element.Type = D3DDECLTYPE_FLOAT3;
+			element.Usage = D3DDECLUSAGE_POSITION;
+			vertexElements.push_back(element);
+		}
+
+		{
+			D3DVERTEXELEMENT9 element = {};
+			element.Offset = offsetof(CUSTOMVERTEX, color);
+			element.Type = D3DDECLTYPE_D3DCOLOR;
+			element.Usage = D3DDECLUSAGE_COLOR;
+			vertexElements.push_back(element);
+		}
+
+		{
+			D3DVERTEXELEMENT9 element = {};
+			element.Offset = offsetof(CUSTOMVERTEX, u);
+			element.Type = D3DDECLTYPE_FLOAT2;
+			element.Usage = D3DDECLUSAGE_TEXCOORD;
+			vertexElements.push_back(element);
+		}
+
+		{
+			D3DVERTEXELEMENT9 element = D3DDECL_END();
+			vertexElements.push_back(element);
+		}
+
+		result = m_device->CreateVertexDeclaration(vertexElements.data(), &m_quadVertexDecl);
+		assert(SUCCEEDED(result));
+	}
 }
 
 void CGSH_HleSoftware::OnDeviceResetting()
@@ -335,7 +373,7 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 	assert(SUCCEEDED(result));
 
 	// select which vertex format we are using
-	result = m_device->SetFVF(CUSTOMFVF);
+	result = m_device->SetVertexDeclaration(m_quadVertexDecl);
 	assert(SUCCEEDED(result));
 
 	// select the vertex buffer to display
@@ -441,16 +479,29 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	assert(SUCCEEDED(result));
 
 	// select which vertex format we are using
-	result = m_device->SetFVF(CUSTOMFVF);
+	result = m_device->SetVertexDeclaration(m_quadVertexDecl);
 	assert(SUCCEEDED(result));
 
 	// select the vertex buffer to display
 	result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
 	assert(SUCCEEDED(result));
 
-	// copy the vertex buffer to the back buffer
-	result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-	assert(SUCCEEDED(result));
+	D3DXHANDLE textureParameter = m_mainFx->GetParameterByName(NULL, "g_MeshTexture");
+	m_mainFx->SetTexture(textureParameter, tex);
+
+	m_mainFx->CommitChanges();
+
+	UINT passCount = 0;
+	m_mainFx->Begin(&passCount, D3DXFX_DONOTSAVESTATE);
+	for (unsigned int i = 0; i < passCount; i++)
+	{
+		m_mainFx->BeginPass(i);
+
+		m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+		m_mainFx->EndPass();
+	}
+	m_mainFx->End();
 }
 
 void CGSH_HleSoftware::SetupBlendingFunction(uint64 alphaReg)

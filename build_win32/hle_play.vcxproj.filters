@@ -19,6 +19,9 @@
     <Filter Include="Source Files\gs">
       <UniqueIdentifier>{5a7cd274-5e86-49d6-9787-cd774fbae6a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\resource">
+      <UniqueIdentifier>{941743fe-edcc-4bfd-9a36-3bf7a1d4e26a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Main.cpp">
@@ -97,5 +100,10 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Source\fx\main.fx">
+      <Filter>Source Files\resource</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

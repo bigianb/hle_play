@@ -40,6 +40,7 @@ private:
 	typedef Framework::Win32::CComPtr<IDirect3DTexture9> TexturePtr;
 	typedef Framework::Win32::CComPtr<IDirect3DSurface9> SurfacePtr;
 	typedef Framework::Win32::CComPtr<ID3DXEffect> EffectPtr;
+	typedef Framework::Win32::CComPtr<IDirect3DVertexDeclaration9> VertexDeclarationPtr;
 
 	static CGSHandler*              GSHandlerFactory(Framework::Win32::CWindow*);
     
@@ -70,6 +71,7 @@ private:
 	Direct3DPtr						m_d3d;
 	DevicePtr						m_device;
 	VertexBufferPtr					m_quadVb;
+	VertexDeclarationPtr			m_quadVertexDecl;
 	bool							m_sceneBegun;
 
 	TexturePtr blockedTex;
