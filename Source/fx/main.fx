@@ -3,6 +3,7 @@
 // Global variables
 //--------------------------------------------------------------------------------------
 
+float4x4 g_WorldViewProj;  // World * View * Projection transformation
 texture g_MeshTexture;              // Color texture for mesh
 
 //--------------------------------------------------------------------------------------
@@ -46,7 +47,7 @@ VS_OUTPUT vertexShader( VS_INPUT input )
 {
     VS_OUTPUT Output;
 
-	Output.Position = input.Position;
+	Output.Position = mul(input.Position, g_WorldViewProj);
 	Output.Diffuse = input.Diffuse;
     Output.TextureUV = input.TextureUV; 
     
@@ -67,8 +68,21 @@ PS_OUTPUT pixelShader( VS_OUTPUT In )
 { 
     PS_OUTPUT Output;
 
-    Output.RGBColor = tex2D(MeshTextureSampler, In.TextureUV);
-	
+	// Modulate
+	float4 Cs = tex2D(MeshTextureSampler, In.TextureUV);
+	Cs.rgb *= In.Diffuse.rgb;
+	Cs.rgb *= 2.0;			// 0x80 is 1.0
+	Cs.a = In.Diffuse.a;
+
+	// function 0x44: Cv = (Cs - Cd) * As >> 7 + Cd
+
+	// Need to get Cd from the frame buffer.
+	//Output.RGBColor.rgb = (Cs.rgb - Cd.rgb) * Cs.a;
+	//Output.RGBColor.rgb *= 2.0;
+	//Output.RGBColor.rgb += Cd.rgb;
+
+	Output.RGBColor = Cs;
+
     return Output;
 }
 

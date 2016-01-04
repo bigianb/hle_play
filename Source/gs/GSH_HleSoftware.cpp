@@ -239,9 +239,7 @@ void CGSH_HleSoftware::FlipImpl()
 
 void CGSH_HleSoftware::displayFrameBuffer()
 {
-	
-
-	SetReadCircuitMatrix(FB_WIDTH_PIX, FB_HEIGHT_PIX);
+	SetWorldMatrix(FB_WIDTH_PIX, FB_HEIGHT_PIX);
 }
 
 void CGSH_HleSoftware::ProcessImageTransfer()
@@ -273,32 +271,27 @@ void CGSH_HleSoftware::ReadFramebuffer(uint32, uint32, void*)
 
 }
 
-void CGSH_HleSoftware::SetReadCircuitMatrix(int nWidth, int nHeight)
+void CGSH_HleSoftware::SetWorldMatrix(int nWidth, int nHeight)
 {
 	//Setup projection matrix
-	{
-		D3DXMATRIX projMatrix;
-		D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(nWidth), static_cast<FLOAT>(nHeight), 1.0f, 0.0f);
-		m_device->SetTransform(D3DTS_PROJECTION, &projMatrix);
-	}
+	
+	D3DXMATRIX projMatrix;
+	D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(nWidth), static_cast<FLOAT>(nHeight), 1.0f, 0.0f);
 
 	//Setup view matrix
-	{
-		D3DXMATRIX viewMatrix;
-		D3DXMatrixLookAtLH(&viewMatrix,
-			&D3DXVECTOR3(0.0f, 0.0f, 1.0f),		// eye
-			&D3DXVECTOR3(0.0f, 0.0f, 0.0f),		// at (look along -ve z axis)
-			&D3DXVECTOR3(0.0f, -1.0f, 0.0f));	// up (+ve y is down)
-
-		m_device->SetTransform(D3DTS_VIEW, &viewMatrix);
-	}
+	
+	D3DXMATRIX viewMatrix;
+	D3DXMatrixLookAtLH(&viewMatrix,
+		&D3DXVECTOR3(0.0f, 0.0f, 1.0f),		// eye
+		&D3DXVECTOR3(0.0f, 0.0f, 0.0f),		// at (look along -ve z axis)
+		&D3DXVECTOR3(0.0f, -1.0f, 0.0f));	// up (+ve y is down)
 
 	//Setup world matrix to make (0,0) the top left corner rather than the centre
-	{
-		D3DXMATRIX worldMatrix;
-		D3DXMatrixTranslation(&worldMatrix, -static_cast<FLOAT>(nWidth) / 2.0f, -static_cast<FLOAT>(nHeight) / 2.0f, 0);
-		m_device->SetTransform(D3DTS_WORLD, &worldMatrix);
-	}
+	
+	D3DXMATRIX worldMatrix;
+	D3DXMatrixTranslation(&worldMatrix, -static_cast<FLOAT>(nWidth) / 2.0f, -static_cast<FLOAT>(nHeight) / 2.0f, 0);
+	
+	m_worldViewMatrix = worldMatrix * viewMatrix * projMatrix;
 }
 
 void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y)
@@ -403,7 +396,12 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	HRESULT result;
 	TexturePtr tex;
 	
-	SetupBlendingFunction(alphaReg);
+//	SetupBlendingFunction(alphaReg);
+
+	// Cv = (A - B) * C >> 7 + D
+	// alphaReg of 0x44 is d = cd (frame buffer), c=as, b=Cd, a = Cs
+	//   Cv = (Cs - Cd) * As >> 7 + Cd
+
 
 	D3DXMATRIX textureMatrix;
 	D3DXMatrixIdentity(&textureMatrix);
@@ -432,10 +430,10 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 		uint8* p = rawTexture->data + ysrc * rawTexture->widthPixels * 4;
 		uint8* pDRow = pDst;
 		for (int x = 0; x < width; ++x) { 
-			pDRow[0] = p[2] > 0x7F ? 0xFF : p[2] * 2;
-			pDRow[1] = p[1] > 0x7F ? 0xFF : p[1] * 2;
-			pDRow[2] = p[0] > 0x7F ? 0xFF : p[0] * 2;
-			pDRow[3] = p[3] > 0x7F ? 0xFF : p[3] * 2;
+			pDRow[0] = p[2];
+			pDRow[1] = p[1];
+			pDRow[2] = p[0];
+			pDRow[3] = p[3];
 			p += 4;
 			pDRow += 4;
 		}
@@ -488,6 +486,9 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 
 	D3DXHANDLE textureParameter = m_mainFx->GetParameterByName(NULL, "g_MeshTexture");
 	m_mainFx->SetTexture(textureParameter, tex);
+
+	D3DXHANDLE worldMatrixParameter = m_mainFx->GetParameterByName(NULL, "g_WorldViewProj");
+	m_mainFx->SetMatrix(worldMatrixParameter, &m_worldViewMatrix);
 
 	m_mainFx->CommitChanges();
 

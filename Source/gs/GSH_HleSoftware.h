@@ -61,7 +61,7 @@ private:
 
 	TexturePtr m_framebufferTexture;
 	void displayFrameBuffer();
-	void SetReadCircuitMatrix(int nWidth, int nHeight);
+	void SetWorldMatrix(int nWidth, int nHeight);
 	void SetupBlendingFunction(uint64 alphaReg);
 
 	EffectPtr						CreateEffectFromResource(const TCHAR*);
@@ -73,7 +73,7 @@ private:
 	VertexBufferPtr					m_quadVb;
 	VertexDeclarationPtr			m_quadVertexDecl;
 	bool							m_sceneBegun;
-
+	D3DXMATRIX						m_worldViewMatrix;
 	TexturePtr blockedTex;
 };
 

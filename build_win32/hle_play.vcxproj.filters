@@ -102,8 +102,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\Source\fx\main.fx">
-      <Filter>Source Files\resource</Filter>
-    </FxCompile>
+    <None Include="..\Source\fx\main.fx" />
   </ItemGroup>
 </Project>
