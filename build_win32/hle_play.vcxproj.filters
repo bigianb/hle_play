@@ -51,6 +51,9 @@
     <ClCompile Include="..\Source\GSH_HleOgl.cpp">
       <Filter>Source Files\gs</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\BgdaDrawColourSpriteBlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\play\Source\ui_win32\Res.rc">
@@ -99,6 +102,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\BgdaDrawColourSpriteBlock.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

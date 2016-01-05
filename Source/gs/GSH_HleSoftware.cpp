@@ -373,6 +373,9 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 	result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
 	assert(SUCCEEDED(result));
 
+	D3DXHANDLE useTextureParameter = m_mainFx->GetParameterByName(NULL, "g_useTexture");
+	m_mainFx->SetBool(useTextureParameter, TRUE);
+
 	D3DXHANDLE textureParameter = m_mainFx->GetParameterByName(NULL, "g_MeshTexture");
 	m_mainFx->SetTexture(textureParameter, blockedTex);
 
@@ -409,47 +412,49 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	
 	SetupBlendingFunction(alphaReg);
 
-	D3DXMATRIX textureMatrix;
-	D3DXMatrixIdentity(&textureMatrix);
-	D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
-	m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
+	if (texGsPacketData != nullptr) {
 
-	Texture* rawTexture = getBGDATexture(width, height, texGsPacketData);
+		D3DXMATRIX textureMatrix;
+		D3DXMatrixIdentity(&textureMatrix);
+		D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
+		m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
 
-	result = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &tex, NULL);
-	
-	D3DLOCKED_RECT rect;
-	result = tex->LockRect(0, &rect, NULL, 0);
-	uint8* pDst = (uint8*)rect.pBits;
+		Texture* rawTexture = getBGDATexture(width, height, texGsPacketData);
 
-	int mid = height / 2;
-	for (int y = 0; y < height; ++y) {
-		int ysrc = y;
-		if (interlaced) {
-			if ((y & 0x01) == 0x01) {
-				ysrc = mid + y / 2;
+		result = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &tex, NULL);
+
+		D3DLOCKED_RECT rect;
+		result = tex->LockRect(0, &rect, NULL, 0);
+		uint8* pDst = (uint8*)rect.pBits;
+
+		int mid = height / 2;
+		for (int y = 0; y < height; ++y) {
+			int ysrc = y;
+			if (interlaced) {
+				if ((y & 0x01) == 0x01) {
+					ysrc = mid + y / 2;
+				}
+				else {
+					ysrc = y / 2;
+				}
 			}
-			else {
-				ysrc = y / 2;
+			uint8* p = rawTexture->data + ysrc * rawTexture->widthPixels * 4;
+			uint8* pDRow = pDst;
+			for (int x = 0; x < width; ++x) {
+				pDRow[0] = p[2];
+				pDRow[1] = p[1];
+				pDRow[2] = p[0];
+				pDRow[3] = p[3];
+				p += 4;
+				pDRow += 4;
 			}
+			pDst += rect.Pitch;
 		}
-		uint8* p = rawTexture->data + ysrc * rawTexture->widthPixels * 4;
-		uint8* pDRow = pDst;
-		for (int x = 0; x < width; ++x) { 
-			pDRow[0] = p[2];
-			pDRow[1] = p[1];
-			pDRow[2] = p[0];
-			pDRow[3] = p[3];
-			p += 4;
-			pDRow += 4;
-		}
-		pDst += rect.Pitch;
+
+		result = tex->UnlockRect(0);
+
+		delete rawTexture; rawTexture = nullptr;
 	}
-
-	result = tex->UnlockRect(0);
-
-	delete rawTexture; rawTexture = nullptr;
-
 	uint32 color = (vertexRGBA & 0xFF00FF00) | ((vertexRGBA & 0xFF) << 16) | ((vertexRGBA >> 16) & 0xFF);
 
 	float nU1 = 0.0;
@@ -488,9 +493,14 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
 	assert(SUCCEEDED(result));
 
-	D3DXHANDLE textureParameter = m_mainFx->GetParameterByName(NULL, "g_MeshTexture");
-	m_mainFx->SetTexture(textureParameter, tex);
-
+	D3DXHANDLE useTextureParameter = m_mainFx->GetParameterByName(NULL, "g_useTexture");
+	if (texGsPacketData == nullptr) {
+		m_mainFx->SetBool(useTextureParameter, FALSE);
+	} else {
+		m_mainFx->SetBool(useTextureParameter, TRUE);
+		D3DXHANDLE textureParameter = m_mainFx->GetParameterByName(NULL, "g_MeshTexture");
+		m_mainFx->SetTexture(textureParameter, tex);
+	}
 	D3DXHANDLE worldMatrixParameter = m_mainFx->GetParameterByName(NULL, "g_WorldViewProj");
 	m_mainFx->SetMatrix(worldMatrixParameter, &m_worldViewMatrix);
 

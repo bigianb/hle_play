@@ -6,6 +6,8 @@
 float4x4 g_WorldViewProj;  // World * View * Projection transformation
 texture g_MeshTexture;              // Color texture for mesh
 
+bool g_useTexture;
+
 //--------------------------------------------------------------------------------------
 // Texture samplers
 //--------------------------------------------------------------------------------------
@@ -68,14 +70,18 @@ PS_OUTPUT pixelShader( VS_OUTPUT In )
 { 
     PS_OUTPUT Output;
 
-	// Modulate
-	float4 Cs = tex2D(MeshTextureSampler, In.TextureUV);
+	if (g_useTexture) {
+		// Modulate
+		float4 Cs = tex2D(MeshTextureSampler, In.TextureUV);
 
-	// when modulated, 0x80 in the fragment colour means no change. 0x80 here is 128/255
-	Cs.rgb = Cs.rgb * In.Diffuse.rgb;
-	Cs = Cs * 255.0 / 128.0;
-	Cs = saturate(Cs);
-	Output.RGBColor = Cs;
+		// when modulated, 0x80 in the fragment colour means no change. 0x80 here is 128/255
+		Cs.rgb = Cs.rgb * In.Diffuse.rgb;
+		Cs = Cs * 255.0 / 128.0;
+		Cs = saturate(Cs);
+		Output.RGBColor = Cs;
+	} else {
+		Output.RGBColor = In.Diffuse;
+	}
 
     return Output;
 }
