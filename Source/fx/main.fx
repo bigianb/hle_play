@@ -70,17 +70,11 @@ PS_OUTPUT pixelShader( VS_OUTPUT In )
 
 	// Modulate
 	float4 Cs = tex2D(MeshTextureSampler, In.TextureUV);
-	Cs.rgb *= In.Diffuse.rgb;
-	Cs.rgb *= 2.0;			// 0x80 is 1.0
-	Cs.a = In.Diffuse.a;
 
-	// function 0x44: Cv = (Cs - Cd) * As >> 7 + Cd
-
-	// Need to get Cd from the frame buffer.
-	//Output.RGBColor.rgb = (Cs.rgb - Cd.rgb) * Cs.a;
-	//Output.RGBColor.rgb *= 2.0;
-	//Output.RGBColor.rgb += Cd.rgb;
-
+	// when modulated, 0x80 in the fragment colour means no change. 0x80 here is 128/255
+	Cs.rgb = Cs.rgb * In.Diffuse.rgb;
+	Cs = Cs * 255.0 / 128.0;
+	Cs = saturate(Cs);
 	Output.RGBColor = Cs;
 
     return Output;

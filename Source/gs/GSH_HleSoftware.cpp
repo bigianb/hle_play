@@ -385,23 +385,13 @@ Texture* getBGDATexture(int width, int height, uint8* texGsPacketData)
 	return tex;
 }
 
-static
-uint8 MulBy2Clamp(uint8 nValue)
-{
-	return (nValue > 0x7F) ? 0xFF : (nValue << 1);
-}
 
 void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg)
 {
 	HRESULT result;
 	TexturePtr tex;
 	
-//	SetupBlendingFunction(alphaReg);
-
-	// Cv = (A - B) * C >> 7 + D
-	// alphaReg of 0x44 is d = cd (frame buffer), c=as, b=Cd, a = Cs
-	//   Cv = (Cs - Cd) * As >> 7 + Cd
-
+	SetupBlendingFunction(alphaReg);
 
 	D3DXMATRIX textureMatrix;
 	D3DXMatrixIdentity(&textureMatrix);
@@ -509,76 +499,20 @@ void CGSH_HleSoftware::SetupBlendingFunction(uint64 alphaReg)
 {
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
+	// Cv = (A - B) * C >> 7 + D
+
 	m_device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, D3DZB_TRUE);
 	m_device->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
 	m_device->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
 
 	if ((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
+		// 0x44 d = cd (frame buffer), c=as, b=Cd, a = Cs
+		// Cv = (Cs - Cd) * As >> 7 + Cd = Cs*As + Cd*(1 - As)
+		// 
+		m_device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	}
-	else if ((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
-	{
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_DESTALPHA);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVDESTALPHA);
-	}
-	else if ((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
-	{
-		//(Cs - Cd) * FIX + Cd
-		//		-> FIX * Cs + (1 - FIX) * Cd
-
-		uint8 fix = MulBy2Clamp(alpha.nFix);
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
-		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
-	}
-	else if ((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1) && (alpha.nFix == 0x80))
-	{
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-	}
-	else if ((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
-	{
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-	}
-	else if ((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
-	{
-		//(Cd - Cs) * As + Cs
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_INVSRCALPHA);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
-	}
-	else if ((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
-	{
-		//Cd * As
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
-
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-	}
-	else if ((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CD) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
-	{
-		//2101 -> Cd * (1 - As)
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	}
-	else if ((alpha.nA == 2) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
-	{
-		//(0 - Cd) * FIX + Cd 
-		//		-> 0 * Cs + (1 - FIX) * Cd
-
-		uint8 fix = MulBy2Clamp(alpha.nFix);
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
-		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
-	}
-	else if ((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nD == ALPHABLEND_ABD_CS))
-	{
-		//22*0 -> Cs (No blend)
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
 	}
 	else
 	{
