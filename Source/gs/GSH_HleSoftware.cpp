@@ -297,6 +297,9 @@ void CGSH_HleSoftware::SetWorldMatrix(int nWidth, int nHeight)
 void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y)
 {
 	HRESULT result;
+
+	SetupBlendingFunction(0);
+
 	int pixw = blockSize * widthInBlocks;
 	int pixh = blockSize * heightInBlocks;
 	if (blockedTex.IsEmpty()) {
@@ -331,11 +334,8 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 	}
 
 	result = blockedTex->UnlockRect(0);
-	
-	m_device->SetTexture(0, blockedTex);
 
-	DWORD color0 = D3DCOLOR_ARGB(0xFF, 0xFF, 0xFF, 0xFF);
-	DWORD color1 = D3DCOLOR_ARGB(0xFF, 0xFF, 0xFF, 0xFF);
+	DWORD color = D3DCOLOR_ARGB(0x80, 0x80, 0x80, 0x80);
 
 	float nU1 = 0.0;
 	float nU2 = 1.0;
@@ -350,10 +350,10 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 
 	CUSTOMVERTEX vertices[] =
 	{
-		{ nX1,	nY2,	nZ,		color0,		nU1,	nV2 },
-		{ nX1,	nY1,	nZ,		color0,		nU1,	nV1 },
-		{ nX2,	nY2,	nZ,		color1,		nU2,	nV2 },
-		{ nX2,	nY1,	nZ,		color1,		nU2,	nV1 },
+		{ nX1,	nY2,	nZ,		color,		nU1,	nV2 },
+		{ nX1,	nY1,	nZ,		color,		nU1,	nV1 },
+		{ nX2,	nY2,	nZ,		color,		nU2,	nV2 },
+		{ nX2,	nY1,	nZ,		color,		nU2,	nV1 },
 	};
 
 	uint8* buffer = NULL;
@@ -373,9 +373,25 @@ void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, in
 	result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
 	assert(SUCCEEDED(result));
 
-	// copy the vertex buffer to the back buffer
-	result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-	assert(SUCCEEDED(result));
+	D3DXHANDLE textureParameter = m_mainFx->GetParameterByName(NULL, "g_MeshTexture");
+	m_mainFx->SetTexture(textureParameter, blockedTex);
+
+	D3DXHANDLE worldMatrixParameter = m_mainFx->GetParameterByName(NULL, "g_WorldViewProj");
+	m_mainFx->SetMatrix(worldMatrixParameter, &m_worldViewMatrix);
+
+	m_mainFx->CommitChanges();
+
+	UINT passCount = 0;
+	m_mainFx->Begin(&passCount, D3DXFX_DONOTSAVESTATE);
+	for (unsigned int i = 0; i < passCount; i++)
+	{
+		m_mainFx->BeginPass(i);
+
+		m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+		m_mainFx->EndPass();
+	}
+	m_mainFx->End();
 }
 
 Texture* getBGDATexture(int width, int height, uint8* texGsPacketData)
@@ -433,8 +449,6 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	result = tex->UnlockRect(0);
 
 	delete rawTexture; rawTexture = nullptr;
-
-	m_device->SetTexture(0, tex);
 
 	uint32 color = (vertexRGBA & 0xFF00FF00) | ((vertexRGBA & 0xFF) << 16) | ((vertexRGBA >> 16) & 0xFF);
 
@@ -516,7 +530,6 @@ void CGSH_HleSoftware::SetupBlendingFunction(uint64 alphaReg)
 	}
 	else
 	{
-		assert(0);
 		//Default blending
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
