@@ -14,12 +14,10 @@ using namespace Framework;
 
 #define SCALE(x) MulDiv(x, ydpi, 96)
 
-HleRendererSettingsWnd::HleRendererSettingsWnd(HWND hParent, CGSH_HleOgl* pRenderer) :
+HleRendererSettingsWnd::HleRendererSettingsWnd(HWND hParent, CGHSHle* pRenderer) :
 CModalWindow(hParent)
 {
 	RECT rc;
-
-	m_pRenderer = pRenderer;
 
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -44,15 +42,6 @@ CModalWindow(hParent)
 
 	m_pOk		= new Win32::CButton(_T("OK"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 	m_pCancel	= new Win32::CButton(_T("Cancel"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
-
-	m_nLinesAsQuads				= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_HleOgl_LINEASQUADS);
-	m_nForceBilinearTextures	= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_HleOgl_FORCEBILINEARTEXTURES);
-
-	m_pLineCheck = new Win32::CButton(_T("Render lines using quads"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_CHECKBOX);
-	m_pLineCheck->SetCheck(m_nLinesAsQuads);
-
-	m_pForceBilinearCheck = new Win32::CButton(_T("Force bilinear texture sampling"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_CHECKBOX);
-	m_pForceBilinearCheck->SetCheck(m_nForceBilinearTextures);
 
 	m_pExtList = new Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_SORTASCENDING | LVS_NOSORTHEADER);
 	m_pExtList->SetExtendedListViewStyle(m_pExtList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
@@ -144,27 +133,27 @@ void HleRendererSettingsWnd::UpdateExtList()
 	itm.pszText		= _T("glBlendColor function");
 	i = m_pExtList->InsertItem(itm);
 
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendColorExtSupported() ? _T("Present") : _T("Absent"));
+//	m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendColorExtSupported() ? _T("Present") : _T("Absent"));
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
 	itm.pszText		= _T("glBlendEquation function");
 	i = m_pExtList->InsertItem(itm);
 
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendEquationExtSupported() ? _T("Present") : _T("Absent"));
+	//m_pExtList->SetItemText(i, 1, m_pRenderer->IsBlendEquationExtSupported() ? _T("Present") : _T("Absent"));
 
 	memset(&itm, 0, sizeof(LVITEM));
 	itm.mask		= LVIF_TEXT;
 	itm.pszText		= _T("glFogCoordf function");
 	i = m_pExtList->InsertItem(itm);
 
-	m_pExtList->SetItemText(i, 1, m_pRenderer->IsFogCoordfExtSupported() ? _T("Present") : _T("Absent"));
+	//m_pExtList->SetItemText(i, 1, m_pRenderer->IsFogCoordfExtSupported() ? _T("Present") : _T("Absent"));
 }
 
 void HleRendererSettingsWnd::Save()
 {
-	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_HleOgl_LINEASQUADS, m_nLinesAsQuads);
-	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_HleOgl_FORCEBILINEARTEXTURES, m_nForceBilinearTextures);
+//	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_HleOgl_LINEASQUADS, m_nLinesAsQuads);
+	//CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_HleOgl_FORCEBILINEARTEXTURES, m_nForceBilinearTextures);
 }
 
 bool HleRendererSettingsWnd::ProcessCheckBoxMessage(HWND hSender, Win32::CButton* pCheckBox, bool* pFlag)

@@ -4,6 +4,7 @@
 #include "BgdaMpegBlock.h"
 #include "BgdaDrawSpriteBlock.h"
 #include "BgdaDrawColourSpriteBlock.h"
+#include "BgdaDrawTextBlock.h"
 
 BgdaEeExecutor::BasicBlockPtr BgdaEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
@@ -16,9 +17,8 @@ BgdaEeExecutor::BasicBlockPtr BgdaEeExecutor::BlockFactory(CMIPS& context, uint3
 	if (start == 0x140eb0) {
 		return std::make_shared<BgdaDrawSpriteBlock>(context, start, end, m_vm);
 	}
-	if (start == 0x1416a0) {
-		return std::make_shared<BgdaDrawColourSpriteBlock>(context, start, end, m_vm);
+	if (start == 0x144328) {
+		return std::make_shared<BgdaDrawTextBlock>(context, start, end, m_vm);
 	}
 	return CMipsExecutor::BlockFactory(context, start, end);
 }
-

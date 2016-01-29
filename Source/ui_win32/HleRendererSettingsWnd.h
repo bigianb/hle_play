@@ -6,12 +6,13 @@
 #include "win32/ListView.h"
 #include "win32/Button.h"
 #include "win32/ComboBox.h"
-#include "../GSH_HleOgl.h"
+
+class CGHSHle;
 
 class HleRendererSettingsWnd : public Framework::Win32::CModalWindow
 {
 public:
-									HleRendererSettingsWnd(HWND, CGSH_HleOgl*);
+									HleRendererSettingsWnd(HWND, CGHSHle*);
 	virtual							~HleRendererSettingsWnd();
 
 protected:
@@ -31,7 +32,6 @@ private:
 	Framework::Win32::CButton*		m_pForceBilinearCheck;
 	Framework::Win32::CButton*		m_pOk;
 	Framework::Win32::CButton*		m_pCancel;
-	CGSH_HleOgl*					m_pRenderer;
 
 	bool							m_nLinesAsQuads;
 	bool							m_nForceBilinearTextures;

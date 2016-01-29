@@ -26,7 +26,7 @@ struct CUSTOMVERTEX
 CGSH_HleSoftware::CGSH_HleSoftware(Framework::Win32::CWindow* outputWindow) :
 	m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
 {
-	
+	currentTextureSourcePointer = nullptr;
 }
 
 CGSH_HleSoftware::~CGSH_HleSoftware()
@@ -405,62 +405,92 @@ Texture* getBGDATexture(int width, int height, uint8* texGsPacketData)
 }
 
 
+void CGSH_HleSoftware::setTexture32(unsigned char* data, int dataLength, int width, int height, bool interlaced)
+{
+	if (data == nullptr) {
+		currentTextureSourcePointer = nullptr;
+		return;
+	}
+	if (data == currentTextureSourcePointer && width == currentTextureWidth && height == currentTextureHeight) {
+		return;
+	}
+	currentTextureSourcePointer = data;
+	currentTextureWidth = width;
+	currentTextureHeight = height;
+
+	D3DXMATRIX textureMatrix;
+	D3DXMatrixIdentity(&textureMatrix);
+	D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
+	m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
+
+	HRESULT result = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &currentTexture, NULL);
+
+	D3DLOCKED_RECT rect;
+	result = currentTexture->LockRect(0, &rect, NULL, 0);
+	uint8* pDst = (uint8*)rect.pBits;
+
+	int mid = height / 2;
+	for (int y = 0; y < height; ++y) {
+		int ysrc = y;
+		if (interlaced) {
+			if ((y & 0x01) == 0x01) {
+				ysrc = mid + y / 2;
+			}
+			else {
+				ysrc = y / 2;
+			}
+		}
+		uint8* p = data + ysrc * width * 4;
+		uint8* pDRow = pDst;
+		for (int x = 0; x < width; ++x) {
+			pDRow[0] = p[2];
+			pDRow[1] = p[1];
+			pDRow[2] = p[0];
+			pDRow[3] = p[3];
+			p += 4;
+			pDRow += 4;
+		}
+		pDst += rect.Pitch;
+	}
+
+	result = currentTexture->UnlockRect(0);
+}
+
 void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg)
 {
 	HRESULT result;
-	TexturePtr tex;
 	
 	SetupBlendingFunction(alphaReg);
 
 	if (texGsPacketData != nullptr) {
-
-		D3DXMATRIX textureMatrix;
-		D3DXMatrixIdentity(&textureMatrix);
-		D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
-		m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
-
-		Texture* rawTexture = getBGDATexture(width, height, texGsPacketData);
-
-		result = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &tex, NULL);
-
-		D3DLOCKED_RECT rect;
-		result = tex->LockRect(0, &rect, NULL, 0);
-		uint8* pDst = (uint8*)rect.pBits;
-
-		int mid = height / 2;
-		for (int y = 0; y < height; ++y) {
-			int ysrc = y;
-			if (interlaced) {
-				if ((y & 0x01) == 0x01) {
-					ysrc = mid + y / 2;
-				}
-				else {
-					ysrc = y / 2;
-				}
-			}
-			uint8* p = rawTexture->data + ysrc * rawTexture->widthPixels * 4;
-			uint8* pDRow = pDst;
-			for (int x = 0; x < width; ++x) {
-				pDRow[0] = p[2];
-				pDRow[1] = p[1];
-				pDRow[2] = p[0];
-				pDRow[3] = p[3];
-				p += 4;
-				pDRow += 4;
-			}
-			pDst += rect.Pitch;
+		if (texGsPacketData != currentTextureSourcePointer){
+			Texture* rawTexture = getBGDATexture(width, height, texGsPacketData);
+			setTexture32(rawTexture->data, rawTexture->dataLength, rawTexture->widthPixels, rawTexture->heightPixels, interlaced);
+			currentTextureSourcePointer = texGsPacketData;
+			delete rawTexture; rawTexture = nullptr;
 		}
-
-		result = tex->UnlockRect(0);
-
-		delete rawTexture; rawTexture = nullptr;
 	}
+	drawSprite(xpos, ypos, 0, 0, width, height, vertexRGBA, texGsPacketData != nullptr);
+}
+
+
+
+void CGSH_HleSoftware::drawSprite(int xpos, int ypos, int u0, int v0, int width, int height, uint32 vertexRGBA, bool useTexture)
+{
 	uint32 color = (vertexRGBA & 0xFF00FF00) | ((vertexRGBA & 0xFF) << 16) | ((vertexRGBA >> 16) & 0xFF);
 
 	float nU1 = 0.0;
 	float nU2 = 1.0;
 	float nV1 = 0.0;
 	float nV2 = 1.0;
+
+	if (useTexture)
+	{
+		nU1 = u0 / (float)currentTextureWidth;
+		nV1 = v0 / (float)currentTextureHeight;
+		nU2 = (u0 + width) / (float)currentTextureWidth;
+		nV2 = (v0 + height) / (float)currentTextureHeight;
+	}
 
 	float nZ = 0.0;
 	float nX1 = xpos;
@@ -477,7 +507,7 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	};
 
 	uint8* buffer = NULL;
-	result = m_quadVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+	HRESULT result = m_quadVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
 	assert(SUCCEEDED(result));
 	{
 		memcpy(buffer, vertices, sizeof(vertices));
@@ -494,12 +524,13 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	assert(SUCCEEDED(result));
 
 	D3DXHANDLE useTextureParameter = m_mainFx->GetParameterByName(NULL, "g_useTexture");
-	if (texGsPacketData == nullptr) {
-		m_mainFx->SetBool(useTextureParameter, FALSE);
-	} else {
+	if (useTexture) {
 		m_mainFx->SetBool(useTextureParameter, TRUE);
 		D3DXHANDLE textureParameter = m_mainFx->GetParameterByName(NULL, "g_MeshTexture");
-		m_mainFx->SetTexture(textureParameter, tex);
+		m_mainFx->SetTexture(textureParameter, currentTexture);
+		
+	} else {
+		m_mainFx->SetBool(useTextureParameter, FALSE);
 	}
 	D3DXHANDLE worldMatrixParameter = m_mainFx->GetParameterByName(NULL, "g_WorldViewProj");
 	m_mainFx->SetMatrix(worldMatrixParameter, &m_worldViewMatrix);
@@ -517,6 +548,7 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 		m_mainFx->EndPass();
 	}
 	m_mainFx->End();
+
 }
 
 void CGSH_HleSoftware::SetupBlendingFunction(uint64 alphaReg)

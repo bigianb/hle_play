@@ -45,13 +45,10 @@
     <ClCompile Include="..\Source\gs\GSH_HleSoftware.cpp">
       <Filter>Source Files\gs</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\ui_win32\GSH_HleOglWin32.cpp">
-      <Filter>Source Files\gs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\GSH_HleOgl.cpp">
-      <Filter>Source Files\gs</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\BgdaDrawColourSpriteBlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\BGDADrawTextBlock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -67,9 +64,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Source\HleMainWindow.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\BgdaEeExecutor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -91,12 +85,6 @@
     <ClInclude Include="..\Source\gs\GSH_HleSoftware.h">
       <Filter>Header Files\gs</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\GSH_HleOgl.h">
-      <Filter>Header Files\gs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ui_win32\GSH_HleOglWin32.h">
-      <Filter>Header Files\gs</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\gs\GSH_Hle.h">
       <Filter>Header Files\gs</Filter>
     </ClInclude>
@@ -104,7 +92,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\BgdaDrawColourSpriteBlock.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\HleMainWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\BGDADrawTextBlock.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

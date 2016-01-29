@@ -25,6 +25,17 @@ public:
 
 	void	CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg) override;
 
+	/**
+	Sets the active texture given a linear block of 32 bit pixels.
+	*/
+	virtual void setTexture32(unsigned char* data, int dataLength, int width, int height, bool interlaced);
+
+	/**
+	Draws a sprite using the current texture.
+	*/
+	virtual void drawSprite(int xpos, int ypos, int u0, int v0, int width, int height, uint32 vertexRGBA, bool useTexture);
+
+
 	// ---------- end hle additions
 
 protected:
@@ -63,6 +74,12 @@ private:
 	void displayFrameBuffer();
 	void SetWorldMatrix(int nWidth, int nHeight);
 	void SetupBlendingFunction(uint64 alphaReg);
+
+	// Used only to know whether we need to reload a texture.
+	unsigned char* currentTextureSourcePointer;
+	int currentTextureHeight;
+	int currentTextureWidth;
+	TexturePtr currentTexture;
 
 	EffectPtr						CreateEffectFromResource(const TCHAR*);
 
