@@ -2,6 +2,8 @@
 
 #include "ee/EeExecutor.h"
 
+#include "bgdaContext.h"
+
 class CPS2VM;
 
 /* An executor specialised for Baldurs Gate Dark Alliance. */
@@ -13,5 +15,7 @@ public:
 
 private:
 	CPS2VM& m_vm;
+
+	BgdaContext bgdaContext;
 
 };

@@ -1,4 +1,5 @@
 #include "BgdaDrawTextBlock.h"
+#include "bgdaContext.h"
 #include "iostream"
 #include "PS2VM.h"
 #include "HleVMUtils.h"
@@ -11,7 +12,8 @@
 // Enable debugging in release mode
 #pragma optimize( "", off )
 
-BgdaDrawTextBlock::BgdaDrawTextBlock(CMIPS& context, uint32 start, uint32 end, CPS2VM& vm) : CBasicBlock(context, start, end), m_vm(vm), pActiveFont(nullptr)
+BgdaDrawTextBlock::BgdaDrawTextBlock(BgdaContext& bgdaContextIn, CMIPS& context, uint32 start, uint32 end, CPS2VM& vm) :
+	CBasicBlock(context, start, end), m_vm(vm), pActiveFont(nullptr), bgdaContext(bgdaContextIn)
 {
 	fontTexture = nullptr;
 }
@@ -47,7 +49,7 @@ unsigned int BgdaDrawTextBlock::Execute()
 		drawGlyphs(gs, xpos, ypos, fntDecoder, pCharsOrGlyphs, length, isInterlaced);
 	}
 	m_context.m_State.nPC = m_context.m_State.nGPR[CMIPS::RA].nV0;
-	return 1000;
+	return 10;
 }
 
 void BgdaDrawTextBlock::drawGlyphs(CGHSHle* gs, int xpos, int ypos, FntDecoder& fntDecoder, uint16* pGlyphs, uint32 length, bool isInterlaced)
@@ -57,8 +59,9 @@ void BgdaDrawTextBlock::drawGlyphs(CGHSHle* gs, int xpos, int ypos, FntDecoder& 
 		uint16 glyphCode = pGlyphs[glyphNum];
 		GlyphInfo& glyphInfo = fntDecoder.lookupGlyph(pActiveFont, glyphCode, pActiveFontPS2Address);
 
+		gs->setAlphaBlendFunction(0x44);
 		gs->setTexture32(fontTexture->data, fontTexture->dataLength, fontTexture->widthPixels, fontTexture->heightPixels, isInterlaced);
-		gs->drawSprite(xpos, ypos, glyphInfo.x0, glyphInfo.y0, glyphInfo.x1 - glyphInfo.x0, glyphInfo.y1 - glyphInfo.y0, 0x80808080, true);
+		gs->drawSprite(xpos, ypos, glyphInfo.x0, glyphInfo.y0, glyphInfo.x1 - glyphInfo.x0, glyphInfo.y1 - glyphInfo.y0, bgdaContext.currentTextColour, true);
 
 		xpos += glyphInfo.width;
 	}

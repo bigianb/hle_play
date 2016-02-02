@@ -6,6 +6,7 @@ class CPS2VM;
 class Texture;
 class CGHSHle;
 class FntDecoder;
+class BgdaContext;
 
 /**
   Code for drawing text.
@@ -13,7 +14,7 @@ class FntDecoder;
 class BgdaDrawTextBlock : public CBasicBlock
 {
 public:
-	BgdaDrawTextBlock(CMIPS& context, uint32 start, uint32 end, CPS2VM& vm);
+	BgdaDrawTextBlock(BgdaContext& bgdaContext, CMIPS& context, uint32 start, uint32 end, CPS2VM& vm);
 	virtual ~BgdaDrawTextBlock();
 
 	unsigned int					Execute();
@@ -21,6 +22,7 @@ public:
 
 private:
 	CPS2VM&		m_vm;
+	BgdaContext& bgdaContext;
 
 	void setActiveFont(uint8* font, int pActiveFontPS2Address);
 	uint8* pActiveFont;

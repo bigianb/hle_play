@@ -21,9 +21,9 @@ public:
 	/**
 	Transfers a macroblocked image as returned from sceMpegGetPicture.
 	*/
-	void	TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y) override;
+	void	transferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y) override;
 
-	void	CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg) override;
+	void	drawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg) override;
 
 	/**
 	Sets the active texture given a linear block of 32 bit pixels.
@@ -35,6 +35,7 @@ public:
 	*/
 	virtual void drawSprite(int xpos, int ypos, int u0, int v0, int width, int height, uint32 vertexRGBA, bool useTexture);
 
+	virtual void setAlphaBlendFunction(uint64 alphaReg);
 
 	// ---------- end hle additions
 
@@ -73,8 +74,7 @@ private:
 	TexturePtr m_framebufferTexture;
 	void displayFrameBuffer();
 	void SetWorldMatrix(int nWidth, int nHeight);
-	void SetupBlendingFunction(uint64 alphaReg);
-
+	
 	// Used only to know whether we need to reload a texture.
 	unsigned char* currentTextureSourcePointer;
 	int currentTextureHeight;

@@ -25,9 +25,9 @@ unsigned int BgdaDrawColourSpriteBlock::Execute()
 
 	uint32 vertexRGBA = m_context.m_State.nGPR[CMIPS::T1].nV0;
 	
-	gs->DrawSprite(xpos, ypos, xpos2-xpos, ypos2-ypos, vertexRGBA, nullptr, isInterlaced != 0, 0x44);
+	gs->drawSprite(xpos, ypos, xpos2-xpos, ypos2-ypos, vertexRGBA, nullptr, isInterlaced != 0, 0x44);
 
 	m_context.m_State.nPC = m_context.m_State.nGPR[CMIPS::RA].nV0;
-	return 1000;
+	return 10;
 }
 

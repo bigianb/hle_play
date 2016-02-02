@@ -6,12 +6,16 @@
 #include "snowlib/Texture.h"
 
 #include "../ui_win32/hle_resource.h"
+#include "Log.h"
 
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
 
 // Enable debugging in release mode
 #pragma optimize( "", off )
+
+#define LOG_NAME	("gs_bgda")
+
 
 struct CUSTOMVERTEX
 {
@@ -165,9 +169,7 @@ void CGSH_HleSoftware::BeginScene()
 {
 	if (!m_sceneBegun)
 	{
-#ifdef _WIREFRAME
-		m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 0.0f, 0);
-#endif
+		CLog::GetInstance().Print(LOG_NAME, "\n---------------------\n\nBeginScene()\n");
 		HRESULT result = m_device->BeginScene();
 		assert(result == S_OK);
 		m_sceneBegun = true;
@@ -178,6 +180,7 @@ void CGSH_HleSoftware::EndScene()
 {
 	if (m_sceneBegun)
 	{
+		CLog::GetInstance().Print(LOG_NAME, "EndScene()\n");
 		HRESULT result = m_device->EndScene();
 		assert(result == S_OK);
 		m_sceneBegun = false;
@@ -188,6 +191,7 @@ void CGSH_HleSoftware::PresentBackbuffer()
 {
 	if (!m_device.IsEmpty())
 	{
+		CLog::GetInstance().Print(LOG_NAME, "PresentBackbuffer()\n");
 		HRESULT result = S_OK;
 
 		EndScene();
@@ -232,6 +236,7 @@ bool CGSH_HleSoftware::TestDevice()
 
 void CGSH_HleSoftware::FlipImpl()
 {
+	CLog::GetInstance().Print(LOG_NAME, "FlipImpl()\n");
 	displayFrameBuffer();
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
@@ -273,6 +278,7 @@ void CGSH_HleSoftware::ReadFramebuffer(uint32, uint32, void*)
 
 void CGSH_HleSoftware::SetWorldMatrix(int nWidth, int nHeight)
 {
+
 	//Setup projection matrix
 	
 	D3DXMATRIX projMatrix;
@@ -294,11 +300,12 @@ void CGSH_HleSoftware::SetWorldMatrix(int nWidth, int nHeight)
 	m_worldViewMatrix = worldMatrix * viewMatrix * projMatrix;
 }
 
-void CGSH_HleSoftware::TransferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y)
+void CGSH_HleSoftware::transferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y)
 {
+	CLog::GetInstance().Print(LOG_NAME, "transferBlockedImage()\n");
 	HRESULT result;
 
-	SetupBlendingFunction(0);
+	setAlphaBlendFunction(0);
 
 	int pixw = blockSize * widthInBlocks;
 	int pixh = blockSize * heightInBlocks;
@@ -407,11 +414,13 @@ Texture* getBGDATexture(int width, int height, uint8* texGsPacketData)
 
 void CGSH_HleSoftware::setTexture32(unsigned char* data, int dataLength, int width, int height, bool interlaced)
 {
+	CLog::GetInstance().Print(LOG_NAME, "setTexture32(width=%d, height=%d)\n", width, height);
 	if (data == nullptr) {
 		currentTextureSourcePointer = nullptr;
 		return;
 	}
 	if (data == currentTextureSourcePointer && width == currentTextureWidth && height == currentTextureHeight) {
+		CLog::GetInstance().Print(LOG_NAME, "    found in cache\n");
 		return;
 	}
 	currentTextureSourcePointer = data;
@@ -423,6 +432,7 @@ void CGSH_HleSoftware::setTexture32(unsigned char* data, int dataLength, int wid
 	D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
 	m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
 
+	currentTexture.Reset();
 	HRESULT result = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &currentTexture, NULL);
 
 	D3DLOCKED_RECT rect;
@@ -456,11 +466,12 @@ void CGSH_HleSoftware::setTexture32(unsigned char* data, int dataLength, int wid
 	result = currentTexture->UnlockRect(0);
 }
 
-void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg)
+void CGSH_HleSoftware::drawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg)
 {
+	CLog::GetInstance().Print(LOG_NAME, "drawSprite(alphareg=0x%x)\n", alphaReg);
 	HRESULT result;
 	
-	SetupBlendingFunction(alphaReg);
+	setAlphaBlendFunction(alphaReg);
 
 	if (texGsPacketData != nullptr) {
 		if (texGsPacketData != currentTextureSourcePointer){
@@ -473,10 +484,9 @@ void CGSH_HleSoftware::DrawSprite(int xpos, int ypos, int width, int height, uin
 	drawSprite(xpos, ypos, 0, 0, width, height, vertexRGBA, texGsPacketData != nullptr);
 }
 
-
-
 void CGSH_HleSoftware::drawSprite(int xpos, int ypos, int u0, int v0, int width, int height, uint32 vertexRGBA, bool useTexture)
 {
+	CLog::GetInstance().Print(LOG_NAME, "drawSprite(vertexRGBA=0x%08x, useTexture=%s)\n", vertexRGBA, useTexture?"true":"false");
 	uint32 color = (vertexRGBA & 0xFF00FF00) | ((vertexRGBA & 0xFF) << 16) | ((vertexRGBA >> 16) & 0xFF);
 
 	float nU1 = 0.0;
@@ -551,8 +561,9 @@ void CGSH_HleSoftware::drawSprite(int xpos, int ypos, int u0, int v0, int width,
 
 }
 
-void CGSH_HleSoftware::SetupBlendingFunction(uint64 alphaReg)
+void CGSH_HleSoftware::setAlphaBlendFunction(uint64 alphaReg)
 {
+	CLog::GetInstance().Print(LOG_NAME, "setAlphaBlendFunction(0x%x)\n", alphaReg);
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
 	// Cv = (A - B) * C >> 7 + D
