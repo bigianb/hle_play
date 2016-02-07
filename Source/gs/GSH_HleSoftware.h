@@ -56,9 +56,11 @@ private:
 
 	static CGSHandler*              GSHandlerFactory(Framework::Win32::CWindow*);
     
-	void							ProcessImageTransfer() override;
+	void							ProcessHostToLocalTransfer() override;
+	void							ProcessLocalToHostTransfer() override;
 	void							ProcessClutTransfer(uint32, uint32) override;
 	void							ProcessLocalToLocalTransfer() override;
+
 
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 

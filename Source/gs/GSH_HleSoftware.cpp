@@ -247,17 +247,15 @@ void CGSH_HleSoftware::displayFrameBuffer()
 	SetWorldMatrix(FB_WIDTH_PIX, FB_HEIGHT_PIX);
 }
 
-void CGSH_HleSoftware::ProcessImageTransfer()
+
+void CGSH_HleSoftware::ProcessHostToLocalTransfer()
 {
-	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
-	uint32 transferAddress = bltBuf.GetDstPtr();
 
-	if (m_trxCtx.nDirty)
-	{
-		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
-		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+}
 
-	}
+void CGSH_HleSoftware::ProcessLocalToHostTransfer()
+{
+
 }
 
 void CGSH_HleSoftware::ProcessClutTransfer(uint32 csa, uint32)
@@ -468,7 +466,7 @@ void CGSH_HleSoftware::setTexture32(unsigned char* data, int dataLength, int wid
 
 void CGSH_HleSoftware::drawSprite(int xpos, int ypos, int width, int height, uint32 vertexRGBA, uint8* texGsPacketData, bool interlaced, uint64 alphaReg)
 {
-	CLog::GetInstance().Print(LOG_NAME, "drawSprite(alphareg=0x%x)\n", alphaReg);
+	CLog::GetInstance().Print(LOG_NAME, "drawSprite(x=%d, y=%d, w=%d, h=%d, alphareg=0x%x)\n", xpos, ypos, width, height, alphaReg);
 	HRESULT result;
 	
 	setAlphaBlendFunction(alphaReg);
