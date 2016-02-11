@@ -9,6 +9,9 @@
 #include "snowlib/FntDecoder.h"
 #include "snowlib/Texture.h"
 
+#include "Log.h"
+#define LOG_NAME	("bgda")
+
 // Enable debugging in release mode
 #pragma optimize( "", off )
 
@@ -38,6 +41,8 @@ unsigned int BgdaDrawTextBlock::Execute()
 	while ((*p & ~0xf800) != 0) {
 		++p; ++length;
 	}
+
+	CLog::GetInstance().Print(LOG_NAME, "BgdaDrawTextBlock(%d, %d, length=%d)\n", xpos, ypos, length);
 
 	if (length > 0) {
 		uint32 fontPS2Addr = HleVMUtils::readInt32Indirect(m_context, CMIPS::GP, 0xbcf4);

@@ -4,6 +4,9 @@
 #include "HleVMUtils.h"
 #include "gs/GSH_Hle.h"
 
+#include "Log.h"
+#define LOG_NAME	("bgda")
+
 // Enable debugging in release mode
 #pragma optimize( "", off )
 
@@ -25,6 +28,8 @@ unsigned int BgdaDrawColourSpriteBlock::Execute()
 
 	uint32 vertexRGBA = m_context.m_State.nGPR[CMIPS::T1].nV0;
 	
+	CLog::GetInstance().Print(LOG_NAME, "BgdaDrawColourSprite(%d, %d, %d, %d, 0x%.8x)\n", xpos, ypos, xpos2, ypos2, vertexRGBA);
+
 	gs->drawSprite(xpos, ypos, xpos2-xpos, ypos2-ypos, vertexRGBA, nullptr, isInterlaced != 0, 0x44);
 
 	m_context.m_State.nPC = m_context.m_State.nGPR[CMIPS::RA].nV0;

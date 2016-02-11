@@ -470,7 +470,7 @@ void CGSH_HleSoftware::drawSprite(int xpos, int ypos, int width, int height, uin
 	HRESULT result;
 	
 	setAlphaBlendFunction(alphaReg);
-
+	
 	if (texGsPacketData != nullptr) {
 		if (texGsPacketData != currentTextureSourcePointer){
 			Texture* rawTexture = getBGDATexture(width, height, texGsPacketData);
@@ -585,6 +585,12 @@ void CGSH_HleSoftware::setAlphaBlendFunction(uint64 alphaReg)
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
 	}
+
+	// hack
+	m_device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
+	m_device->SetRenderState(D3DRS_ALPHAREF, 1);
+	m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_TRUE);
+
 }
 
 CGSH_HleSoftware::EffectPtr CGSH_HleSoftware::CreateEffectFromResource(const TCHAR* resourceName)
