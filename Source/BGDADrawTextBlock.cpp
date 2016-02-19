@@ -65,8 +65,8 @@ void BgdaDrawTextBlock::drawGlyphs(CGHSHle* gs, int xpos, int ypos, FntDecoder& 
 		GlyphInfo& glyphInfo = fntDecoder.lookupGlyph(pActiveFont, glyphCode, pActiveFontPS2Address);
 
 		gs->setAlphaBlendFunction(0x44);
-		gs->setTexture32(fontTexture->data, fontTexture->dataLength, fontTexture->widthPixels, fontTexture->heightPixels, isInterlaced);
-		gs->drawSprite(xpos, ypos, glyphInfo.x0, glyphInfo.y0, glyphInfo.x1 - glyphInfo.x0, glyphInfo.y1 - glyphInfo.y0, bgdaContext.currentTextColour, true);
+		gs->setTexture32(fontTexture->data, fontTexture->dataLength, fontTexture->widthPixels, fontTexture->logicalHeight, isInterlaced);
+		gs->drawSprite(xpos, ypos + glyphInfo.yOffset, glyphInfo.x0, glyphInfo.y0, glyphInfo.x1 - glyphInfo.x0, glyphInfo.y1 - glyphInfo.y0, bgdaContext.currentTextColour, true);
 
 		xpos += glyphInfo.width;
 	}
