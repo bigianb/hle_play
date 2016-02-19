@@ -474,7 +474,7 @@ void CGSH_HleSoftware::drawSprite(int xpos, int ypos, int width, int height, uin
 	if (texGsPacketData != nullptr) {
 		if (texGsPacketData != currentTextureSourcePointer){
 			Texture* rawTexture = getBGDATexture(width, height, texGsPacketData);
-			setTexture32(rawTexture->data, rawTexture->dataLength, rawTexture->widthPixels, rawTexture->heightPixels, interlaced);
+			setTexture32(rawTexture->data, rawTexture->dataLength, rawTexture->widthPixels, height, interlaced);
 			currentTextureSourcePointer = texGsPacketData;
 			delete rawTexture; rawTexture = nullptr;
 		}
