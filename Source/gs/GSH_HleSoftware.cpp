@@ -566,7 +566,7 @@ void CGSH_HleSoftware::setAlphaBlendFunction(uint64 alphaReg)
 
 	// Cv = (A - B) * C >> 7 + D
 
-	m_device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, D3DZB_TRUE);
+	m_device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE);
 	m_device->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
 	m_device->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
 
@@ -589,7 +589,7 @@ void CGSH_HleSoftware::setAlphaBlendFunction(uint64 alphaReg)
 	// hack
 	m_device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
 	m_device->SetRenderState(D3DRS_ALPHAREF, 1);
-	m_device->SetRenderState(D3DRS_ALPHATESTENABLE, D3DZB_TRUE);
+	m_device->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
 
 }
 

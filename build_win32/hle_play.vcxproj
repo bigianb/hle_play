@@ -194,6 +194,7 @@
   <ItemGroup>
     <ClInclude Include="..\Source\BgdaBeginTextBlock.h" />
     <ClInclude Include="..\Source\bgdaContext.h" />
+    <ClInclude Include="..\Source\BgdaDmaQueue.h" />
     <ClInclude Include="..\Source\BgdaDrawColourSpriteBlock.h" />
     <ClInclude Include="..\Source\BgdaDrawSpriteBlock.h" />
     <ClInclude Include="..\Source\BGDADrawTextBlock.h" />

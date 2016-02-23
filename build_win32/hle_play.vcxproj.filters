@@ -109,6 +109,9 @@
     <ClInclude Include="..\Source\BgdaBeginTextBlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\BgdaDmaQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\fx\main.fx" />

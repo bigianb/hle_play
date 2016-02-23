@@ -18,13 +18,65 @@
 BgdaDrawTextBlock::BgdaDrawTextBlock(BgdaContext& bgdaContextIn, CMIPS& context, uint32 start, uint32 end, CPS2VM& vm) :
 	CBasicBlock(context, start, end), m_vm(vm), pActiveFont(nullptr), bgdaContext(bgdaContextIn)
 {
-	fontTexture = nullptr;
 }
 
 BgdaDrawTextBlock::~BgdaDrawTextBlock()
 {
-	delete fontTexture;
 }
+
+class BgdaDrawTextBlockDmaItem : public BgdaDmaItem
+{
+public:
+	BgdaContext& bgdaContext;
+	CMIPS& context;
+	bool isInterlaced;
+	uint32 xpos;
+	uint32 ypos;
+	
+	int length;
+	uint16* pGlyphs;
+
+	uint32 fontPS2Addr;
+	uint32 colour;
+
+	BgdaDrawTextBlockDmaItem(BgdaContext& bgdaContextIn, CMIPS& contextIn) : bgdaContext(bgdaContextIn), context(contextIn)
+	{
+
+	}
+
+	void execute(CGHSHle* gs)
+	{
+		FntDecoder fntDecoder;
+		drawGlyphs(gs, xpos, ypos, fntDecoder, pGlyphs, length, isInterlaced);
+	}
+
+	// Not very efficient as it parses and uploads the font each time.
+	void drawGlyphs(CGHSHle* gs, int xpos, int ypos, FntDecoder& fntDecoder, uint16* pGlyphs, uint32 length, bool isInterlaced)
+	{
+		TexDecoder decoder;
+		uint8* pFont = HleVMUtils::getPointer(context, fontPS2Addr);
+		int textureAddress = DataUtil::getLEInt(pFont, 0x10);
+		uint8* pTexture = HleVMUtils::getPointer(context, textureAddress);
+		Texture* fontTexture = decoder.decode(pTexture, textureAddress);
+
+		for (int glyphNum = 0; glyphNum < length; ++glyphNum)
+		{
+			uint16 glyphCode = pGlyphs[glyphNum];
+			GlyphInfo& glyphInfo = fntDecoder.lookupGlyph(pFont, glyphCode, fontPS2Addr);
+
+			gs->setAlphaBlendFunction(0x44);
+			gs->setTexture32(fontTexture->data, fontTexture->dataLength, fontTexture->widthPixels, fontTexture->logicalHeight, isInterlaced);
+			gs->drawSprite(xpos, ypos + glyphInfo.yOffset, glyphInfo.x0, glyphInfo.y0, glyphInfo.x1 - glyphInfo.x0, glyphInfo.y1 - glyphInfo.y0, colour, true);
+
+			xpos += glyphInfo.width;
+		}
+	}
+
+	void setActiveFont(uint8* font, int fontPs2Address)
+	{
+
+	}
+};
 
 unsigned int BgdaDrawTextBlock::Execute()
 {
@@ -46,43 +98,21 @@ unsigned int BgdaDrawTextBlock::Execute()
 
 	if (length > 0) {
 		uint32 fontPS2Addr = HleVMUtils::readInt32Indirect(m_context, CMIPS::GP, 0xbcf4);
-		uint8* pFont = HleVMUtils::getPointer(m_context, fontPS2Addr);
-		setActiveFont(pFont, fontPS2Addr);
-		FntDecoder fntDecoder;
-		fntDecoder.charsToGlyphsInplace(pActiveFont, pCharsOrGlyphs, length, fontPS2Addr);
+		BgdaDrawTextBlockDmaItem item = BgdaDrawTextBlockDmaItem(bgdaContext, m_context);
+		item.isInterlaced = isInterlaced != 0;
+		item.xpos = xpos;
+		item.ypos = ypos;
+		item.length = length;
+		item.pGlyphs = pCharsOrGlyphs;
+		item.fontPS2Addr = fontPS2Addr;
+		item.colour = bgdaContext.currentTextColour;
 
-		drawGlyphs(gs, xpos, ypos, fntDecoder, pCharsOrGlyphs, length, isInterlaced);
+		bgdaContext.dmaQueue.prependItem(7, item);
 	}
 	m_context.m_State.nPC = m_context.m_State.nGPR[CMIPS::RA].nV0;
 	return 10;
 }
 
-void BgdaDrawTextBlock::drawGlyphs(CGHSHle* gs, int xpos, int ypos, FntDecoder& fntDecoder, uint16* pGlyphs, uint32 length, bool isInterlaced)
-{
-	for (int glyphNum = 0; glyphNum < length; ++glyphNum)
-	{
-		uint16 glyphCode = pGlyphs[glyphNum];
-		GlyphInfo& glyphInfo = fntDecoder.lookupGlyph(pActiveFont, glyphCode, pActiveFontPS2Address);
 
-		gs->setAlphaBlendFunction(0x44);
-		gs->setTexture32(fontTexture->data, fontTexture->dataLength, fontTexture->widthPixels, fontTexture->logicalHeight, isInterlaced);
-		gs->drawSprite(xpos, ypos + glyphInfo.yOffset, glyphInfo.x0, glyphInfo.y0, glyphInfo.x1 - glyphInfo.x0, glyphInfo.y1 - glyphInfo.y0, bgdaContext.currentTextColour, true);
 
-		xpos += glyphInfo.width;
-	}
-}
-
-void BgdaDrawTextBlock::setActiveFont(uint8* font, int fontPs2Address)
-{
-	if (font == pActiveFont) {
-		return;
-	}
-	delete fontTexture;
-	TexDecoder decoder;
-	int textureAddress = DataUtil::getLEInt(font, 0x10);
-	uint8* pTexture = HleVMUtils::getPointer(m_context, textureAddress);
-	fontTexture = decoder.decode(pTexture, textureAddress);
-	pActiveFont = font;
-	pActiveFontPS2Address = fontPs2Address;
-}
 
