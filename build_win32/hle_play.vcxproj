@@ -147,10 +147,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\BgdaBeginTextBlock.cpp" />
+    <ClCompile Include="..\Source\BgdaDmaQueue.cpp" />
     <ClCompile Include="..\Source\BgdaDrawColourSpriteBlock.cpp" />
     <ClCompile Include="..\Source\BgdaDrawSpriteBlock.cpp" />
     <ClCompile Include="..\Source\BGDADrawTextBlock.cpp" />
     <ClCompile Include="..\Source\BgdaEeExecutor.cpp" />
+    <ClCompile Include="..\Source\BgdaKickoffDmaBlock.cpp" />
     <ClCompile Include="..\Source\BgdaMpegBlock.cpp" />
     <ClCompile Include="..\Source\gs\GSH_HleSoftware.cpp" />
     <ClCompile Include="..\Source\HleMainWindow.cpp" />
@@ -199,6 +201,7 @@
     <ClInclude Include="..\Source\BgdaDrawSpriteBlock.h" />
     <ClInclude Include="..\Source\BGDADrawTextBlock.h" />
     <ClInclude Include="..\Source\BgdaEeExecutor.h" />
+    <ClInclude Include="..\Source\BgdaKickoffDmaBlock.h" />
     <ClInclude Include="..\Source\BgdaMpegBlock.h" />
     <ClInclude Include="..\Source\gs\GSH_Hle.h" />
     <ClInclude Include="..\Source\gs\GSH_HleSoftware.h" />

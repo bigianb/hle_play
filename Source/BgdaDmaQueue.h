@@ -11,15 +11,16 @@ class CGHSHle;
 
 class BgdaDmaItem
 {
+public:
 	virtual void execute(CGHSHle* gs) = 0;
 };
 
 class BgdaDmaQueue
 {
-	std::list<BgdaDmaItem> slots[8];
+	std::list<BgdaDmaItem*> slots[8];
 
 public:
-	void prependItem(int slot, BgdaDmaItem& item)
+	void prependItem(int slot, BgdaDmaItem* item)
 	{
 		slots[slot].push_front(item);
 	}

@@ -80,8 +80,6 @@ public:
 
 unsigned int BgdaDrawTextBlock::Execute()
 {
-	CGHSHle* gs = dynamic_cast<CGHSHle*>(m_vm.GetGSHandler());
-
 	uint32 isInterlaced = HleVMUtils::readInt32Indirect(m_context, CMIPS::GP, 0xa4d0);
 
 	uint32 xpos = m_context.m_State.nGPR[CMIPS::A0].nV0;
@@ -98,14 +96,14 @@ unsigned int BgdaDrawTextBlock::Execute()
 
 	if (length > 0) {
 		uint32 fontPS2Addr = HleVMUtils::readInt32Indirect(m_context, CMIPS::GP, 0xbcf4);
-		BgdaDrawTextBlockDmaItem item = BgdaDrawTextBlockDmaItem(bgdaContext, m_context);
-		item.isInterlaced = isInterlaced != 0;
-		item.xpos = xpos;
-		item.ypos = ypos;
-		item.length = length;
-		item.pGlyphs = pCharsOrGlyphs;
-		item.fontPS2Addr = fontPS2Addr;
-		item.colour = bgdaContext.currentTextColour;
+		BgdaDrawTextBlockDmaItem* item = new BgdaDrawTextBlockDmaItem(bgdaContext, m_context);
+		item->isInterlaced = isInterlaced != 0;
+		item->xpos = xpos;
+		item->ypos = ypos;
+		item->length = length;
+		item->pGlyphs = pCharsOrGlyphs;
+		item->fontPS2Addr = fontPS2Addr;
+		item->colour = bgdaContext.currentTextColour;
 
 		bgdaContext.dmaQueue.prependItem(7, item);
 	}
