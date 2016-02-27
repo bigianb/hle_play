@@ -34,24 +34,25 @@ public:
 	uint32 ypos;
 	
 	int length;
-	uint16* pGlyphs;
+	uint16 glyphs[256];
 
 	uint32 fontPS2Addr;
 	uint32 colour;
 
-	BgdaDrawTextBlockDmaItem(BgdaContext& bgdaContextIn, CMIPS& contextIn) : bgdaContext(bgdaContextIn), context(contextIn)
+	BgdaDrawTextBlockDmaItem(BgdaContext& bgdaContextIn, CMIPS& contextIn, uint16* pGlyphs, int len) : bgdaContext(bgdaContextIn), context(contextIn)
 	{
-
+		length = len > 256 ? 256 : len;
+		memcpy(glyphs, pGlyphs, length * sizeof(uint16));
 	}
 
 	void execute(CGHSHle* gs)
 	{
 		FntDecoder fntDecoder;
-		drawGlyphs(gs, xpos, ypos, fntDecoder, pGlyphs, length, isInterlaced);
+		drawGlyphs(gs, xpos, ypos, fntDecoder, length, isInterlaced);
 	}
 
 	// Not very efficient as it parses and uploads the font each time.
-	void drawGlyphs(CGHSHle* gs, int xpos, int ypos, FntDecoder& fntDecoder, uint16* pGlyphs, uint32 length, bool isInterlaced)
+	void drawGlyphs(CGHSHle* gs, int xpos, int ypos, FntDecoder& fntDecoder, uint32 length, bool isInterlaced)
 	{
 		TexDecoder decoder;
 		uint8* pFont = HleVMUtils::getPointer(context, fontPS2Addr);
@@ -61,7 +62,7 @@ public:
 
 		for (int glyphNum = 0; glyphNum < length; ++glyphNum)
 		{
-			uint16 glyphCode = pGlyphs[glyphNum];
+			uint16 glyphCode = glyphs[glyphNum];
 			GlyphInfo& glyphInfo = fntDecoder.lookupGlyph(pFont, glyphCode, fontPS2Addr);
 
 			gs->setAlphaBlendFunction(0x44);
@@ -72,10 +73,6 @@ public:
 		}
 	}
 
-	void setActiveFont(uint8* font, int fontPs2Address)
-	{
-
-	}
 };
 
 unsigned int BgdaDrawTextBlock::Execute()
@@ -96,12 +93,10 @@ unsigned int BgdaDrawTextBlock::Execute()
 
 	if (length > 0) {
 		uint32 fontPS2Addr = HleVMUtils::readInt32Indirect(m_context, CMIPS::GP, 0xbcf4);
-		BgdaDrawTextBlockDmaItem* item = new BgdaDrawTextBlockDmaItem(bgdaContext, m_context);
+		BgdaDrawTextBlockDmaItem* item = new BgdaDrawTextBlockDmaItem(bgdaContext, m_context, pCharsOrGlyphs, length);
 		item->isInterlaced = isInterlaced != 0;
 		item->xpos = xpos;
 		item->ypos = ypos;
-		item->length = length;
-		item->pGlyphs = pCharsOrGlyphs;
 		item->fontPS2Addr = fontPS2Addr;
 		item->colour = bgdaContext.currentTextColour;
 
