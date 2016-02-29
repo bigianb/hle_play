@@ -56,11 +56,12 @@ unsigned int BgdaDrawSpriteBlock::Execute()
 	uint8* pTexData = HleVMUtils::getOffsetPointer(m_context, CMIPS::A0, 0);
 	uint32 xpos = m_context.m_State.nGPR[CMIPS::A1].nV0;
 	uint32 ypos = m_context.m_State.nGPR[CMIPS::A2].nV0;
-	
+	uint32 slot = m_context.m_State.nGPR[CMIPS::A3].nV0;
+
 	uint32 vertexRGBA = m_context.m_State.nGPR[CMIPS::T1].nV0;
 
 	BgdaDrawSpriteDmaItem* item = new BgdaDrawSpriteDmaItem(m_context, pTexData, xpos, ypos, vertexRGBA, isInterlaced != 0);
-	bgdaContext.dmaQueue.prependItem(7, item);
+	bgdaContext.dmaQueue.prependItem(slot, item);
 
 	m_context.m_State.nPC = m_context.m_State.nGPR[CMIPS::RA].nV0;
 	return 10;

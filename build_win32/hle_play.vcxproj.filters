@@ -60,6 +60,9 @@
     <ClCompile Include="..\Source\BgdaDmaQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\BgdaSetTextColourBlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\play\Source\ui_win32\Res.rc">
@@ -119,6 +122,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\BgdaKickoffDmaBlock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\BgdaSetTextColourBlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

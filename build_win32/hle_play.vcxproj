@@ -154,6 +154,7 @@
     <ClCompile Include="..\Source\BgdaEeExecutor.cpp" />
     <ClCompile Include="..\Source\BgdaKickoffDmaBlock.cpp" />
     <ClCompile Include="..\Source\BgdaMpegBlock.cpp" />
+    <ClCompile Include="..\Source\BgdaSetTextColourBlock.cpp" />
     <ClCompile Include="..\Source\gs\GSH_HleSoftware.cpp" />
     <ClCompile Include="..\Source\HleMainWindow.cpp" />
     <ClCompile Include="..\Source\Main.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="..\Source\BgdaEeExecutor.h" />
     <ClInclude Include="..\Source\BgdaKickoffDmaBlock.h" />
     <ClInclude Include="..\Source\BgdaMpegBlock.h" />
+    <ClInclude Include="..\Source\BgdaSetTextColourBlock.h" />
     <ClInclude Include="..\Source\gs\GSH_Hle.h" />
     <ClInclude Include="..\Source\gs\GSH_HleSoftware.h" />
     <ClInclude Include="..\Source\HleMainWindow.h" />

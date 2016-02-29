@@ -43,7 +43,7 @@ void CGSH_HleSoftware::InitializeImpl()
 	m_d3d = Direct3DPtr(Direct3DCreate9(D3D_SDK_VERSION));
 	CreateDevice();
 
-	m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0x40, 0x40, 0x40), 1.0f, 0);
+	m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0,0,0), 1.0f, 0);
 	PresentBackbuffer();
 }
 
@@ -200,6 +200,8 @@ void CGSH_HleSoftware::PresentBackbuffer()
 			result = m_device->Present(NULL, NULL, NULL, NULL);
 			assert(SUCCEEDED(result));
 		}
+//		m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
 		BeginScene();
 	}
 }
@@ -239,6 +241,7 @@ void CGSH_HleSoftware::FlipImpl()
 	CLog::GetInstance().Print(LOG_NAME, "FlipImpl()\n");
 	displayFrameBuffer();
 	PresentBackbuffer();
+
 	CGSHandler::FlipImpl();
 }
 
