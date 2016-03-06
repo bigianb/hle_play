@@ -15,7 +15,10 @@ BgdaEeExecutor::BasicBlockPtr BgdaEeExecutor::BlockFactory(CMIPS& context, uint3
 		return std::make_shared<BgdaKickoffDmaBlock>(bgdaContext, context, start, end, m_vm);
 	}
 	if (start == 0x140eb0) {
-		return std::make_shared<BgdaDrawSpriteBlock>(bgdaContext, context, start, end, m_vm);
+		return std::make_shared<BgdaDrawSpriteBlock>(bgdaContext, context, start, end, m_vm, false);
+	}
+	if (start == 0x141210) {
+		return std::make_shared<BgdaDrawSpriteBlock>(bgdaContext, context, start, end, m_vm, true);
 	}
 	if (start == 0x1416a0){
 		return std::make_shared<BgdaDrawColourSpriteBlock>(bgdaContext, context, start, end, m_vm);

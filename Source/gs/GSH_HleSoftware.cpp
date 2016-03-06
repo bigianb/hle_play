@@ -301,6 +301,22 @@ void CGSH_HleSoftware::SetWorldMatrix(int nWidth, int nHeight)
 	m_worldViewMatrix = worldMatrix * viewMatrix * projMatrix;
 }
 
+void CGSH_HleSoftware::setScissorRect(uint32 scissorX0, uint32 scissorY0, uint32 scissorX1, uint32 scissorY1)
+{
+	RECT scissorRect = {};
+	scissorRect.left = scissorX0;
+	scissorRect.top = scissorY0;
+	scissorRect.right = scissorX1;
+	scissorRect.bottom = scissorY1;
+	m_device->SetScissorRect(&scissorRect);
+	m_device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+}
+
+void CGSH_HleSoftware::disableScissor()
+{
+	m_device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+}
+
 void CGSH_HleSoftware::transferBlockedImage(int blockSize, int widthInBlocks, int heightInBlocks, uint32* pRGBA, int dbp, int dbw, int x, int y)
 {
 	CLog::GetInstance().Print(LOG_NAME, "transferBlockedImage()\n");

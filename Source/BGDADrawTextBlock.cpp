@@ -48,7 +48,7 @@ public:
 	void execute(CGHSHle* gs)
 	{
 		FntDecoder fntDecoder;
-		drawGlyphs(gs, xpos, ypos, fntDecoder, length, isInterlaced);
+		drawGlyphs(gs, xpos, ypos, fntDecoder, length, true /*isInterlaced*/);
 	}
 
 	// Not very efficient as it parses and uploads the font each time.
@@ -85,7 +85,7 @@ unsigned int BgdaDrawTextBlock::Execute()
 
 	int length = 0;
 	uint16* p = pCharsOrGlyphs;
-	while ((*p & ~0xf800) != 0) {
+	while (*p != 0) {
 		++p; ++length;
 	}
 

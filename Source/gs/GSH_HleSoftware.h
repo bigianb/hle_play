@@ -37,6 +37,16 @@ public:
 
 	virtual void setAlphaBlendFunction(uint64 alphaReg);
 
+	/**
+	Sets the scissor rectangle and enables scissoring.
+	*/
+	virtual void setScissorRect(uint32 scissorX0, uint32 scissorY0, uint32 scissorX1, uint32 scissorY1);
+
+	/**
+	Disables scissoring.
+	*/
+	virtual void disableScissor();
+
 	// ---------- end hle additions
 
 protected:
