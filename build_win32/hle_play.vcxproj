@@ -149,6 +149,7 @@
     <ClCompile Include="..\Source\BgdaBeginTextBlock.cpp" />
     <ClCompile Include="..\Source\BgdaDmaQueue.cpp" />
     <ClCompile Include="..\Source\BgdaDrawColourSpriteBlock.cpp" />
+    <ClCompile Include="..\Source\BgdaDrawModelBlock.cpp" />
     <ClCompile Include="..\Source\BgdaDrawSpriteBlock.cpp" />
     <ClCompile Include="..\Source\BGDADrawTextBlock.cpp" />
     <ClCompile Include="..\Source\BgdaEeExecutor.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="..\Source\bgdaContext.h" />
     <ClInclude Include="..\Source\BgdaDmaQueue.h" />
     <ClInclude Include="..\Source\BgdaDrawColourSpriteBlock.h" />
+    <ClInclude Include="..\Source\BgdaDrawModelBlock.h" />
     <ClInclude Include="..\Source\BgdaDrawSpriteBlock.h" />
     <ClInclude Include="..\Source\BGDADrawTextBlock.h" />
     <ClInclude Include="..\Source\BgdaEeExecutor.h" />

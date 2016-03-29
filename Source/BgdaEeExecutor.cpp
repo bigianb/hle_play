@@ -8,11 +8,15 @@
 #include "BgdaDrawTextBlock.h"
 #include "BgdaKickoffDmaBlock.h"
 #include "BgdaSetTextColourBlock.h"
+#include "BgdaDrawModelBlock.h"
 
 BgdaEeExecutor::BasicBlockPtr BgdaEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
 	if (start == 0x135c08) {
 		return std::make_shared<BgdaKickoffDmaBlock>(bgdaContext, context, start, end, m_vm);
+	}
+	if (start == 0x13ec48) {
+		return std::make_shared<BgdaDrawModelBlock>(bgdaContext, context, start, end, m_vm);
 	}
 	if (start == 0x140eb0) {
 		return std::make_shared<BgdaDrawSpriteBlock>(bgdaContext, context, start, end, m_vm, false);
