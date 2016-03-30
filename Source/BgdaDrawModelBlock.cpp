@@ -6,7 +6,7 @@
 #include "gs/GSH_Hle.h"
 
 #include "Log.h"
-#define LOG_NAME	("bgda")
+#define LOG_NAME	("bgda_model")
 
 // Enable debugging in release mode
 #pragma optimize( "", off )
@@ -58,6 +58,11 @@ unsigned int BgdaDrawModelBlock::Execute()
 	uint8* pAnimData = HleVMUtils::getOffsetPointer(m_context, CMIPS::T1, 0);
 	uint32 showSubmeshMask = m_context.m_State.nGPR[CMIPS::T2].nV0;
 	uint32 arg7 = m_context.m_State.nGPR[CMIPS::T3].nV0;
+
+	CLog::GetInstance().Print(LOG_NAME, "transform");
+	for (int i = 0; i < 4; ++i) {
+		CLog::GetInstance().Print(LOG_NAME, "%.2f, %.2f, %.2f, %.2f", matrix[i * 4], matrix[i * 4 + 1], matrix[i * 4 + 2], matrix[i * 4 + 3]);
+	}
 
 	m_context.m_State.nPC = m_context.m_State.nGPR[CMIPS::RA].nV0;
 	return 10;

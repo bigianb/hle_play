@@ -27,7 +27,7 @@ namespace HleVMUtils
 	uint8* getOffsetPointer(CMIPS& context, CMIPS::REGISTER reg, int offset)
 	{
 		uint32 addr = context.m_State.nGPR[reg].nV0 + (int16)offset;
-		return getPointer(context, addr);
+		return addr == 0 ? 0 : getPointer(context, addr);
 	}
 
 	static inline

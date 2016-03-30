@@ -53,6 +53,12 @@ public:
 
 		uint32 gsStartPtr = *(uint32*)(texData + 0x10);
 		
+		if (texWidth > 0xffff || texHeight > 0xffff || gsStartPtr > 0x0fffffff) {
+			// This is probably due to the game loading a new level before clearing the DMA.
+			CLog::GetInstance().Print(LOG_NAME, "Found corrupt texture data");
+			return;
+		}
+
 		CLog::GetInstance().Print(LOG_NAME, "BgdaDrawSpriteBlock(%d, %d, %d, %d, 0x%.8x)\n", xpos, ypos, texWidth, texHeight, vertexRGBA);
 
 		if (hasScissor) {
