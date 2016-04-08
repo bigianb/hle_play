@@ -154,6 +154,7 @@
     <ClCompile Include="..\Source\BGDADrawTextBlock.cpp" />
     <ClCompile Include="..\Source\BgdaEeExecutor.cpp" />
     <ClCompile Include="..\Source\BgdaKickoffDmaBlock.cpp" />
+    <ClCompile Include="..\Source\BgdaMatrixRoutines.cpp" />
     <ClCompile Include="..\Source\BgdaMpegBlock.cpp" />
     <ClCompile Include="..\Source\BgdaSetTextColourBlock.cpp" />
     <ClCompile Include="..\Source\gs\GSH_HleSoftware.cpp" />
@@ -205,6 +206,7 @@
     <ClInclude Include="..\Source\BGDADrawTextBlock.h" />
     <ClInclude Include="..\Source\BgdaEeExecutor.h" />
     <ClInclude Include="..\Source\BgdaKickoffDmaBlock.h" />
+    <ClInclude Include="..\Source\BgdaMatrixRoutines.h" />
     <ClInclude Include="..\Source\BgdaMpegBlock.h" />
     <ClInclude Include="..\Source\BgdaSetTextColourBlock.h" />
     <ClInclude Include="..\Source\gs\GSH_Hle.h" />
