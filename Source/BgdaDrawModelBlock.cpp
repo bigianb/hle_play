@@ -54,14 +54,15 @@ unsigned int BgdaDrawModelBlock::Execute()
 
 	uint32 arg3 = m_context.m_State.nGPR[CMIPS::A3].nV0;
 
-	float* matrix = (float*)HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
+	float (*pmatrix)[4][4] = (float (*)[4][4])HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
+	float(&matrix)[4][4] = *pmatrix;
 	uint8* pAnimData = HleVMUtils::getOffsetPointer(m_context, CMIPS::T1, 0);
 	uint32 showSubmeshMask = m_context.m_State.nGPR[CMIPS::T2].nV0;
 	uint32 arg7 = m_context.m_State.nGPR[CMIPS::T3].nV0;
 
-	CLog::GetInstance().Print(LOG_NAME, "transform");
+	CLog::GetInstance().Print(LOG_NAME, "transform\n");
 	for (int i = 0; i < 4; ++i) {
-		CLog::GetInstance().Print(LOG_NAME, "%.2f, %.2f, %.2f, %.2f", matrix[i * 4], matrix[i * 4 + 1], matrix[i * 4 + 2], matrix[i * 4 + 3]);
+		CLog::GetInstance().Print(LOG_NAME, "%f, %f, %f, %f\n", matrix[i][0], matrix[i][1], matrix[i][2], matrix[i][3]);
 	}
 
 	m_context.m_State.nPC = m_context.m_State.nGPR[CMIPS::RA].nV0;
