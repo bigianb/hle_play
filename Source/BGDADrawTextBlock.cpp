@@ -60,16 +60,21 @@ public:
 		uint8* pTexture = HleVMUtils::getPointer(context, textureAddress);
 		Texture* fontTexture = decoder.decode(pTexture, textureAddress);
 
+		uint16 prevGlyphCode = 0;
 		for (int glyphNum = 0; glyphNum < length; ++glyphNum)
 		{
 			uint16 glyphCode = glyphs[glyphNum];
 			GlyphInfo& glyphInfo = fntDecoder.lookupGlyph(pFont, glyphCode, fontPS2Addr);
 
+			xpos += fntDecoder.getKernPairAdjust(pFont, prevGlyphCode, glyphCode, fontPS2Addr);
+
 			gs->setAlphaBlendFunction(0x44);
 			gs->setTexture32(fontTexture->data, fontTexture->dataLength, fontTexture->widthPixels, fontTexture->logicalHeight, isInterlaced);
 			gs->drawSprite(xpos, ypos + glyphInfo.yOffset, glyphInfo.x0, glyphInfo.y0, glyphInfo.x1 - glyphInfo.x0, glyphInfo.y1 - glyphInfo.y0, colour, true);
 
-			xpos += glyphInfo.width;
+			xpos += fntDecoder.getCharAdvance(pFont, glyphCode, fontPS2Addr);
+
+			prevGlyphCode = glyphCode;
 		}
 	}
 
