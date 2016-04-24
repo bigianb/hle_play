@@ -2,6 +2,8 @@
 
 #include "Types.h"
 
+class Mesh;
+
 /**
  * Interface for GS Handlers which support Hle Additions.
 */
@@ -39,4 +41,10 @@ public:
 	Disables scissoring.
 	*/
 	virtual void disableScissor() = 0;
+
+	/**
+	Draws a textured model with a transform matrix.
+	*/
+	virtual void drawModel(int texWidth, int texHeight, uint8* texGsPacketData, std::vector<Mesh*>* meshList, float* xform) = 0;
+
 };

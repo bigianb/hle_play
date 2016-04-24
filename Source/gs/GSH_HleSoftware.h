@@ -8,6 +8,8 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 
+class Mesh;
+
 class CGSH_HleSoftware : public CGSHandler, public CGHSHle
 {
 public:
@@ -46,6 +48,8 @@ public:
 	Disables scissoring.
 	*/
 	virtual void disableScissor();
+
+	virtual void drawModel(int texWidth, int texHeight, uint8* texGsPacketData, std::vector<Mesh*>* meshList, float* xform);
 
 	// ---------- end hle additions
 

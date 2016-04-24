@@ -58,6 +58,9 @@ public:
 		uint8* pFont = HleVMUtils::getPointer(context, fontPS2Addr);
 		int textureAddress = DataUtil::getLEInt(pFont, 0x10);
 		uint8* pTexture = HleVMUtils::getPointer(context, textureAddress);
+		if (nullptr == pTexture) {
+			return;
+		}
 		Texture* fontTexture = decoder.decode(pTexture, textureAddress);
 
 		uint16 prevGlyphCode = 0;

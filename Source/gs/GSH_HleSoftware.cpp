@@ -4,6 +4,7 @@
 
 #include "snowlib/TexDecoder.h"
 #include "snowlib/Texture.h"
+#include "snowlib/Mesh.h"
 
 #include "../ui_win32/hle_resource.h"
 #include "Log.h"
@@ -576,6 +577,76 @@ void CGSH_HleSoftware::drawSprite(int xpos, int ypos, int u0, int v0, int width,
 	}
 	m_mainFx->End();
 
+}
+
+void CGSH_HleSoftware::drawModel(int texWidth, int texHeight, uint8* texGsPacketData, std::vector<Mesh*>* meshList, float* xform)
+{
+	if (texGsPacketData != nullptr) {
+		if (texGsPacketData != currentTextureSourcePointer) {
+			Texture* rawTexture = getBGDATexture(texWidth, texHeight, texGsPacketData);
+			setTexture32(rawTexture->data, rawTexture->dataLength, rawTexture->widthPixels, texHeight, false);
+			currentTextureSourcePointer = texGsPacketData;
+			delete rawTexture; rawTexture = nullptr;
+		}
+	}
+	for (Mesh* mesh : *meshList) {
+		if (mesh->numVertices == 0) {
+			continue;
+		}
+		int numTris = mesh->triangleIndices.size() / 3;
+		VertexBufferPtr vertexBuf;
+		HRESULT result = m_device->CreateVertexBuffer(numTris * 3 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &vertexBuf, nullptr);
+
+		uint8* buffer = NULL;
+		result = vertexBuf->Lock(0, numTris * 3 * sizeof(CUSTOMVERTEX), reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+		assert(SUCCEEDED(result));
+		
+		CUSTOMVERTEX* vertex = (CUSTOMVERTEX*)buffer;
+		for (int idx : mesh->triangleIndices) {
+			FloatVector* position = mesh->positions + idx;
+			FloatPoint* uvCoord = mesh->uvCoords + idx;
+			vertex->x = position->x;
+			vertex->y = position->y;
+			vertex->z = position->z;
+			vertex->color = 0;
+			vertex->u = uvCoord->x / (float)texWidth;
+			vertex->v = uvCoord->y / (float)texHeight;
+
+			++vertex;
+		}
+		result = vertexBuf->Unlock();
+		assert(SUCCEEDED(result));
+		// select which vertex format we are using
+		result = m_device->SetVertexDeclaration(m_quadVertexDecl);
+		assert(SUCCEEDED(result));
+
+		// select the vertex buffer to display
+		result = m_device->SetStreamSource(0, vertexBuf, 0, sizeof(CUSTOMVERTEX));
+		assert(SUCCEEDED(result));
+
+		D3DXHANDLE useTextureParameter = m_mainFx->GetParameterByName(NULL, "g_useTexture");
+		
+		m_mainFx->SetBool(useTextureParameter, TRUE);
+		D3DXHANDLE textureParameter = m_mainFx->GetParameterByName(NULL, "g_MeshTexture");
+		m_mainFx->SetTexture(textureParameter, currentTexture);
+
+		D3DXHANDLE worldMatrixParameter = m_mainFx->GetParameterByName(NULL, "g_WorldViewProj");
+		m_mainFx->SetMatrix(worldMatrixParameter, &m_worldViewMatrix);
+
+		m_mainFx->CommitChanges();
+
+		UINT passCount = 0;
+		m_mainFx->Begin(&passCount, D3DXFX_DONOTSAVESTATE);
+		for (unsigned int i = 0; i < passCount; i++)
+		{
+			m_mainFx->BeginPass(i);
+
+			m_device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, numTris);
+
+			m_mainFx->EndPass();
+		}
+		m_mainFx->End();
+	}
 }
 
 void CGSH_HleSoftware::setAlphaBlendFunction(uint64 alphaReg)

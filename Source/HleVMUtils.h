@@ -12,6 +12,9 @@ namespace HleVMUtils
 	{
 		addr = context.m_pAddrTranslator(&context, addr);
 		const CMemoryMap::MEMORYMAPELEMENT* e = context.m_pMemoryMap->GetReadMap(addr);
+		if (e == nullptr) {
+			return nullptr;
+		}
 		uint8* p = reinterpret_cast<uint8*>(e->pPointer) + (addr - e->nStart);
 		return p;
 	}
