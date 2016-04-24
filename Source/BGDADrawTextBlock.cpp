@@ -97,7 +97,7 @@ unsigned int BgdaDrawTextBlock::Execute()
 	CLog::GetInstance().Print(LOG_NAME, "BgdaDrawTextBlock(%d, %d, length=%d)\n", xpos, ypos, length);
 
 	if (length > 0) {
-		uint32 fontPS2Addr = HleVMUtils::readInt32Indirect(m_context, CMIPS::GP, 0xbcf4);
+		uint32 fontPS2Addr = HleVMUtils::readInt32Indirect(m_context, CMIPS::GP, 0xbfc4);
 		BgdaDrawTextBlockDmaItem* item = new BgdaDrawTextBlockDmaItem(bgdaContext, m_context, pCharsOrGlyphs, length);
 		item->isInterlaced = isInterlaced != 0;
 		item->xpos = xpos;
