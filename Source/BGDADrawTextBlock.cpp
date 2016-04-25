@@ -48,7 +48,7 @@ public:
 	void execute(CGHSHle* gs)
 	{
 		FntDecoder fntDecoder;
-		drawGlyphs(gs, xpos, ypos, fntDecoder, length, true /*isInterlaced*/);
+		drawGlyphs(gs, xpos, ypos, fntDecoder, length, isInterlaced);
 	}
 
 	// Not very efficient as it parses and uploads the font each time.
