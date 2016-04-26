@@ -14,7 +14,7 @@
 BgdaEeExecutor::BasicBlockPtr BgdaEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
 	if (start == 0x131b00) {
-		return std::make_shared<BgdaSetupProjMatrixBlock>(bgdaContext, context, start, end, m_vm);
+//		return std::make_shared<BgdaSetupProjMatrixBlock>(bgdaContext, context, start, end, m_vm);
 	}
 	if (start == 0x135c08) {
 		return std::make_shared<BgdaKickoffDmaBlock>(bgdaContext, context, start, end, m_vm);

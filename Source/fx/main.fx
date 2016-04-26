@@ -7,6 +7,8 @@ float4x4 g_WorldViewProj;  // World * View * Projection transformation
 texture g_MeshTexture;              // Color texture for mesh
 
 bool g_useTexture;
+bool g_modelProj;
+
 
 //--------------------------------------------------------------------------------------
 // Texture samplers
@@ -50,6 +52,13 @@ VS_OUTPUT vertexShader( VS_INPUT input )
     VS_OUTPUT Output;
 
 	Output.Position = mul(input.Position, g_WorldViewProj);
+	Output.Position.xyz /= Output.Position.w;
+	Output.Position.w = 1.0;
+	if (g_modelProj) {
+		Output.Position.x /= 640.0;
+		Output.Position.y /= -250.0;
+		Output.Position.z = 0.1;
+	}
 	Output.Diffuse = input.Diffuse;
     Output.TextureUV = input.TextureUV; 
     

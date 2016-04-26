@@ -398,6 +398,9 @@ void CGSH_HleSoftware::transferBlockedImage(int blockSize, int widthInBlocks, in
 	result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
 	assert(SUCCEEDED(result));
 
+	D3DXHANDLE isModelProjParameter = m_mainFx->GetParameterByName(NULL, "g_modelProj");
+	m_mainFx->SetBool(isModelProjParameter, FALSE);
+
 	D3DXHANDLE useTextureParameter = m_mainFx->GetParameterByName(NULL, "g_useTexture");
 	m_mainFx->SetBool(useTextureParameter, TRUE);
 
@@ -551,6 +554,9 @@ void CGSH_HleSoftware::drawSprite(int xpos, int ypos, int u0, int v0, int width,
 	result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
 	assert(SUCCEEDED(result));
 
+	D3DXHANDLE isModelProjParameter = m_mainFx->GetParameterByName(NULL, "g_modelProj");
+	m_mainFx->SetBool(isModelProjParameter, FALSE);
+
 	D3DXHANDLE useTextureParameter = m_mainFx->GetParameterByName(NULL, "g_useTexture");
 	if (useTexture) {
 		m_mainFx->SetBool(useTextureParameter, TRUE);
@@ -590,22 +596,20 @@ void CGSH_HleSoftware::drawModel(int texWidth, int texHeight, uint8* texGsPacket
 		}
 	}
 
+	m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+	m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	m_device->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+
 	disableScissor();
 
 	m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
 	D3DXMATRIX projMatrix;
-	D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(640), static_cast<FLOAT>(512), 1.0f, -1000.0f);
+	D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(640), static_cast<FLOAT>(512), 100000.0f, -100000.0f);
 
 	//Setup view matrix
-
-	D3DXMATRIX viewMatrix;
-	D3DXMatrixLookAtLH(&viewMatrix,
-		&D3DXVECTOR3(0.0f, 0.0f, 1.0f),		// eye
-		&D3DXVECTOR3(0.0f, 0.0f, 0.0f),		// at (look along -ve z axis)
-		&D3DXVECTOR3(0.0f, -1.0f, 0.0f));	// up (+ve y is down)
-											
-	D3DXMATRIX worldViewMatrix = viewMatrix * projMatrix;
+	D3DXMATRIX viewMatrix(xform);
+	D3DXMATRIX worldViewMatrix = viewMatrix;
 
 	for (Mesh* mesh : *meshList) {
 		if (mesh->numVertices == 0) {
@@ -643,8 +647,11 @@ void CGSH_HleSoftware::drawModel(int texWidth, int texHeight, uint8* texGsPacket
 		assert(SUCCEEDED(result));
 
 		D3DXHANDLE useTextureParameter = m_mainFx->GetParameterByName(NULL, "g_useTexture");
-		
 		m_mainFx->SetBool(useTextureParameter, TRUE);
+		
+		D3DXHANDLE isModelProjParameter = m_mainFx->GetParameterByName(NULL, "g_modelProj");
+		m_mainFx->SetBool(isModelProjParameter, TRUE);
+		
 		D3DXHANDLE textureParameter = m_mainFx->GetParameterByName(NULL, "g_MeshTexture");
 		m_mainFx->SetTexture(textureParameter, currentTexture);
 
@@ -655,9 +662,9 @@ void CGSH_HleSoftware::drawModel(int texWidth, int texHeight, uint8* texGsPacket
 
 		UINT passCount = 0;
 		m_mainFx->Begin(&passCount, D3DXFX_DONOTSAVESTATE);
-		for (unsigned int i = 0; i < passCount; i++)
+		for (unsigned int pass = 0; pass < passCount; pass++)
 		{
-			m_mainFx->BeginPass(i);
+			m_mainFx->BeginPass(pass);
 
 			m_device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, numTris);
 
