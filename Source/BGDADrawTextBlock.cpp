@@ -90,11 +90,16 @@ unsigned int BgdaDrawTextBlock::Execute()
 	uint32 xpos = m_context.m_State.nGPR[CMIPS::A0].nV0;
 	uint32 ypos = m_context.m_State.nGPR[CMIPS::A1].nV0;
 	uint16* pCharsOrGlyphs = reinterpret_cast<uint16*>(HleVMUtils::getOffsetPointer(m_context, CMIPS::A2, 0));
+	uint32 length = m_context.m_State.nGPR[CMIPS::A3].nV0;
 
-	int length = 0;
+	int maxLen = 0;
 	uint16* p = pCharsOrGlyphs;
 	while (*p != 0) {
-		++p; ++length;
+		++p; ++maxLen;
+	}
+
+	if (length == 0 || length > maxLen) {
+		length = maxLen;
 	}
 
 	CLog::GetInstance().Print(LOG_NAME, "BgdaDrawTextBlock(%d, %d, length=%d)\n", xpos, ypos, length);
