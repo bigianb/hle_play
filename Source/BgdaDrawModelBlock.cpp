@@ -72,6 +72,7 @@ unsigned int BgdaDrawModelBlock::Execute()
 	t2 = arg6 - bit mask of meshes to draw
 	t3 = arg7
 	*/
+	uint32 vifPs2Addr = m_context.m_State.nGPR[CMIPS::A0].nV0;
 	uint8* pVifData = HleVMUtils::getOffsetPointer(m_context, CMIPS::A0, 0);
 	uint8* pTexData = HleVMUtils::getOffsetPointer(m_context, CMIPS::A1, 0);
 	uint32 slot = m_context.m_State.nGPR[CMIPS::A2].nV0;
@@ -90,7 +91,7 @@ unsigned int BgdaDrawModelBlock::Execute()
 	}
 	*/
 	VifDecoder vifDecoder;
-	std::vector<Mesh*>* meshList = vifDecoder.decode(pVifData);
+	std::vector<Mesh*>* meshList = vifDecoder.decode(pVifData, vifPs2Addr);
 
 	BgdaDrawModelBlockItem* item = new BgdaDrawModelBlockItem(m_context, pTexData, meshList, pMatrix);
 	bgdaContext.dmaQueue.prependItem(slot, item);

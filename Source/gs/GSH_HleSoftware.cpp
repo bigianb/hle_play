@@ -284,7 +284,7 @@ void CGSH_HleSoftware::SetWorldMatrix(int nWidth, int nHeight)
 	//Setup projection matrix
 	
 	D3DXMATRIX projMatrix;
-	D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(nWidth), static_cast<FLOAT>(nHeight), 1.0f, 0.0f);
+	D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(nWidth), static_cast<FLOAT>(nHeight), 1.0f, -1000.0f);
 
 	//Setup view matrix
 	
@@ -589,6 +589,24 @@ void CGSH_HleSoftware::drawModel(int texWidth, int texHeight, uint8* texGsPacket
 			delete rawTexture; rawTexture = nullptr;
 		}
 	}
+
+	disableScissor();
+
+	m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+
+	D3DXMATRIX projMatrix;
+	D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(640), static_cast<FLOAT>(512), 1.0f, -1000.0f);
+
+	//Setup view matrix
+
+	D3DXMATRIX viewMatrix;
+	D3DXMatrixLookAtLH(&viewMatrix,
+		&D3DXVECTOR3(0.0f, 0.0f, 1.0f),		// eye
+		&D3DXVECTOR3(0.0f, 0.0f, 0.0f),		// at (look along -ve z axis)
+		&D3DXVECTOR3(0.0f, -1.0f, 0.0f));	// up (+ve y is down)
+											
+	D3DXMATRIX worldViewMatrix = viewMatrix * projMatrix;
+
 	for (Mesh* mesh : *meshList) {
 		if (mesh->numVertices == 0) {
 			continue;
@@ -608,7 +626,7 @@ void CGSH_HleSoftware::drawModel(int texWidth, int texHeight, uint8* texGsPacket
 			vertex->x = position->x;
 			vertex->y = position->y;
 			vertex->z = position->z;
-			vertex->color = 0;
+			vertex->color = 0x80808080;
 			vertex->u = uvCoord->x / (float)texWidth;
 			vertex->v = uvCoord->y / (float)texHeight;
 
@@ -631,7 +649,7 @@ void CGSH_HleSoftware::drawModel(int texWidth, int texHeight, uint8* texGsPacket
 		m_mainFx->SetTexture(textureParameter, currentTexture);
 
 		D3DXHANDLE worldMatrixParameter = m_mainFx->GetParameterByName(NULL, "g_WorldViewProj");
-		m_mainFx->SetMatrix(worldMatrixParameter, &m_worldViewMatrix);
+		m_mainFx->SetMatrix(worldMatrixParameter, &worldViewMatrix);
 
 		m_mainFx->CommitChanges();
 
