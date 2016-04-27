@@ -1,11 +1,12 @@
 #include "BgdaMpegBlock.h"
 #include "iostream"
 #include "PS2VM.h"
+#include "bgdaContext.h"
 #include "HleVMUtils.h"
 #include "gs/GSH_Hle.h"
 #include "gs/GSH_HleSoftware.h"
 
-BgdaMpegBlock::BgdaMpegBlock(CMIPS& context, uint32 start, uint32 end, CPS2VM& vm) : CBasicBlock(context, start, end), m_vm(vm)
+BgdaMpegBlock::BgdaMpegBlock(BgdaContext& bgdaContextIn, CMIPS& context, uint32 start, uint32 end, CPS2VM& vm) : CBasicBlock(context, start, end), m_vm(vm), bgdaContext(bgdaContextIn)
 {
 	std::cout << "Created Mpeg standard block from " << start << " to " << end << std::endl;
 }
@@ -14,6 +15,10 @@ unsigned int BgdaMpegBlock::Execute()
 {
 	CGHSHle* gs = dynamic_cast<CGHSHle*>(m_vm.GetGSHandler());
 	
+	// This is a bit of a hack.
+	bgdaContext.dmaQueue.flush(gs);
+	gs->displayBackBufferAndClear();
+
 	//s0= mpegDecoderInfo struct
 	// 8(s0) = frame count
 	// $c054(gp) = rgb32 frame buffer. 16x16 blocks arranged column major

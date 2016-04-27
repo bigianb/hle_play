@@ -51,6 +51,8 @@ public:
 
 	virtual void drawModel(int texWidth, int texHeight, uint8* texGsPacketData, std::vector<Mesh*>* meshList, float* xform);
 
+	virtual void displayBackBufferAndClear();
+
 	// ---------- end hle additions
 
 protected:

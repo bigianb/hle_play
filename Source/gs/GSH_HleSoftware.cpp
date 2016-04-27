@@ -241,9 +241,15 @@ void CGSH_HleSoftware::FlipImpl()
 {
 	CLog::GetInstance().Print(LOG_NAME, "FlipImpl()\n");
 	displayFrameBuffer();
-	PresentBackbuffer();
+	//PresentBackbuffer();
 
 	CGSHandler::FlipImpl();
+}
+
+void CGSH_HleSoftware::displayBackBufferAndClear()
+{
+	PresentBackbuffer();
+	m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0x0, 0x0, 0x0), 1.0f, 0);
 }
 
 void CGSH_HleSoftware::displayFrameBuffer()

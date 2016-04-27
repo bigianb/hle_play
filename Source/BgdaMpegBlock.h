@@ -3,6 +3,7 @@
 #include "BasicBlock.h"
 
 class CPS2VM;
+class BgdaContext;
 
 /**
   This code transfers the results of the mpeg frame decode to the display buffer of the GS.
@@ -13,11 +14,12 @@ class CPS2VM;
 class BgdaMpegBlock : public CBasicBlock
 {
 public:
-	BgdaMpegBlock(CMIPS& context, uint32 start, uint32 end, CPS2VM& vm);
+	BgdaMpegBlock(BgdaContext& bgdaContext, CMIPS& context, uint32 start, uint32 end, CPS2VM& vm);
 
 	unsigned int					Execute();
 	void							Compile() {}
 
 private:
 	CPS2VM&		m_vm;
+	BgdaContext& bgdaContext;
 };

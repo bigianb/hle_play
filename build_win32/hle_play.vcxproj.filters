@@ -69,6 +69,9 @@
     <ClCompile Include="..\Source\BgdaMatrixRoutines.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\BgdaDisplayBackBufferBlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\play\Source\ui_win32\Res.rc">
@@ -137,6 +140,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\BgdaMatrixRoutines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\BgdaDisplayBackBufferBlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

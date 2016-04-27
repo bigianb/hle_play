@@ -47,4 +47,8 @@ public:
 	*/
 	virtual void drawModel(int texWidth, int texHeight, uint8* texGsPacketData, std::vector<Mesh*>* meshList, float* xform) = 0;
 
+	/**
+	Displays the back buffer and then clears it.
+	*/
+	virtual void displayBackBufferAndClear() = 0;
 };
