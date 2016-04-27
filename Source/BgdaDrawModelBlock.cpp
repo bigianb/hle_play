@@ -77,13 +77,25 @@ unsigned int BgdaDrawModelBlock::Execute()
 	uint8* pTexData = HleVMUtils::getOffsetPointer(m_context, CMIPS::A1, 0);
 	uint32 slot = m_context.m_State.nGPR[CMIPS::A2].nV0;
 
-	uint32 arg3 = m_context.m_State.nGPR[CMIPS::A3].nV0;
+	float * pMatrix;
+	uint8* pAnimData;
+	uint32 showSubmeshMask;
+	if (m_context.m_State.nPC == 0x0013ec48) {
+		uint32 arg3 = m_context.m_State.nGPR[CMIPS::A3].nV0;
 
-	float * pMatrix= (float* )HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
+		pMatrix = (float*)HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
 
-	uint8* pAnimData = HleVMUtils::getOffsetPointer(m_context, CMIPS::T1, 0);
-	uint32 showSubmeshMask = m_context.m_State.nGPR[CMIPS::T2].nV0;
-	uint32 arg7 = m_context.m_State.nGPR[CMIPS::T3].nV0;
+		pAnimData = HleVMUtils::getOffsetPointer(m_context, CMIPS::T1, 0);
+		showSubmeshMask = m_context.m_State.nGPR[CMIPS::T2].nV0;
+		uint32 arg7 = m_context.m_State.nGPR[CMIPS::T3].nV0;
+	}
+	else {
+		pMatrix = (float*)HleVMUtils::getOffsetPointer(m_context, CMIPS::A3, 0);
+
+		pAnimData = HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
+		showSubmeshMask = m_context.m_State.nGPR[CMIPS::T1].nV0;
+	}
+
 	/*
 	CLog::GetInstance().Print(LOG_NAME, "transform\n");
 	for (int row = 0; row < 4; ++row) {
