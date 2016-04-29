@@ -1,4 +1,5 @@
 #include "BgdaDrawModelBlock.h"
+#include "BgdaMatrixRoutines.h"
 #include "bgdaContext.h"
 #include "iostream"
 #include "PS2VM.h"
@@ -96,17 +97,11 @@ unsigned int BgdaDrawModelBlock::Execute()
 		uint32 arg3 = m_context.m_State.nGPR[CMIPS::A3].nV0;
 
 		// In this case, matrix is 3x4 and is pre-multipled by the camera matrix at 0x00233f18
-		pMatrix = (float*)HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
+		float* p3x4Matrix = (float*)HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
 		float* cameraMatrix = (float*)HleVMUtils::getPointer(m_context, 0x00233f18);
 
-		// actually a 3x4
-		D3DXMATRIX worldMatrix(pMatrix);
-
-		D3DXMATRIX viewMatrix(cameraMatrix);
-		tmpMatrix = viewMatrix * worldMatrix;
 		pMatrix = &tmpMatrix.m[0][0];
-
-		pMatrix = cameraMatrix;
+		BgdaMatrixMulBlock::mul3x4by4x4(pMatrix, p3x4Matrix, cameraMatrix);
 
 		pAnimData = HleVMUtils::getOffsetPointer(m_context, CMIPS::T1, 0);
 		showSubmeshMask = m_context.m_State.nGPR[CMIPS::T2].nV0;
