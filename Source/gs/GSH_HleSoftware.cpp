@@ -610,9 +610,6 @@ void CGSH_HleSoftware::drawModel(int texWidth, int texHeight, uint8* texGsPacket
 
 	m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
-	D3DXMATRIX projMatrix;
-	D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(640), static_cast<FLOAT>(512), 100000.0f, -100000.0f);
-
 	//Setup view matrix
 	D3DXMATRIX viewMatrix(xform);
 	D3DXMATRIX worldViewMatrix = viewMatrix;

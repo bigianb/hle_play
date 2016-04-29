@@ -7,6 +7,7 @@
 #include "snowlib/TexDecoder.h"
 #include "snowlib/VifDecoder.h"
 #include "Log.h"
+#include <d3dx9math.h>
 #define LOG_NAME	("bgda_model")
 
 // Enable debugging in release mode
@@ -77,6 +78,8 @@ unsigned int BgdaDrawModelBlock::Execute()
 	uint8* pTexData = HleVMUtils::getOffsetPointer(m_context, CMIPS::A1, 0);
 	uint32 slot = m_context.m_State.nGPR[CMIPS::A2].nV0;
 
+	D3DXMATRIX tmpMatrix;
+
 	float * pMatrix;
 	uint8* pAnimData;
 	uint32 showSubmeshMask;
@@ -84,6 +87,26 @@ unsigned int BgdaDrawModelBlock::Execute()
 		uint32 arg3 = m_context.m_State.nGPR[CMIPS::A3].nV0;
 
 		pMatrix = (float*)HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
+
+		pAnimData = HleVMUtils::getOffsetPointer(m_context, CMIPS::T1, 0);
+		showSubmeshMask = m_context.m_State.nGPR[CMIPS::T2].nV0;
+		uint32 arg7 = m_context.m_State.nGPR[CMIPS::T3].nV0;
+	}
+	else if (m_context.m_State.nPC == 0x0013e618) {
+		uint32 arg3 = m_context.m_State.nGPR[CMIPS::A3].nV0;
+
+		// In this case, matrix is 3x4 and is pre-multipled by the camera matrix at 0x00233f18
+		pMatrix = (float*)HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
+		float* cameraMatrix = (float*)HleVMUtils::getPointer(m_context, 0x00233f18);
+
+		// actually a 3x4
+		D3DXMATRIX worldMatrix(pMatrix);
+
+		D3DXMATRIX viewMatrix(cameraMatrix);
+		tmpMatrix = viewMatrix * worldMatrix;
+		pMatrix = &tmpMatrix.m[0][0];
+
+		pMatrix = cameraMatrix;
 
 		pAnimData = HleVMUtils::getOffsetPointer(m_context, CMIPS::T1, 0);
 		showSubmeshMask = m_context.m_State.nGPR[CMIPS::T2].nV0;

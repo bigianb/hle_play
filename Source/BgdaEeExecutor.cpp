@@ -20,6 +20,9 @@ BgdaEeExecutor::BasicBlockPtr BgdaEeExecutor::BlockFactory(CMIPS& context, uint3
 	if (start == 0x135c08) {
 		return std::make_shared<BgdaKickoffDmaBlock>(bgdaContext, context, start, end, m_vm);
 	}
+	if (start == 0x13e618) {
+		return std::make_shared<BgdaDrawModelBlock>(bgdaContext, context, start, end, m_vm);
+	}
 	if (start == 0x13ec48) {
 		return std::make_shared<BgdaDrawModelBlock>(bgdaContext, context, start, end, m_vm);
 	}
