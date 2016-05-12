@@ -9,6 +9,7 @@
 #include "BgdaKickoffDmaBlock.h"
 #include "BgdaSetTextColourBlock.h"
 #include "BgdaDrawModelBlock.h"
+#include "BgdaDrawObjectBlock.h"
 #include "BgdaMatrixRoutines.h"
 #include "BgdaDisplayBackBufferBlock.h"
 #include "BgdaDebugBlock.h"
@@ -55,6 +56,9 @@ BgdaEeExecutor::BasicBlockPtr BgdaEeExecutor::BlockFactory(CMIPS& context, uint3
 	if (start == 0x144328) {
 		return std::make_shared<BgdaDrawTextBlock>(bgdaContext, context, start, end, m_vm);
 	}
+	if (start == 0x14ae10) {
+		return std::make_shared<BgdaDrawObjectBlock>(bgdaContext, context, start, end, m_vm);
+	}
 	if (start == 0x00154f6c) {
 		return std::make_shared<BgdaMpegBlock>(bgdaContext, context, start, end, m_vm);
 	}
@@ -62,7 +66,7 @@ BgdaEeExecutor::BasicBlockPtr BgdaEeExecutor::BlockFactory(CMIPS& context, uint3
 		return std::make_shared<NopBlock>(context, start, end);
 	}
 	if (start == 0x185a68 || start == 0x185a9c || start == 0x185aa4 || start == 0x00186794) {
-		return std::make_shared<BgdaDebugBlock>(bgdaContext, context, start, end, m_vm);
+//		return std::make_shared<BgdaDebugBlock>(bgdaContext, context, start, end, m_vm);
 	}
 	if (start == 0x00201a50) {
 		return std::make_shared<BgdaDisplayBackBufferBlock>(bgdaContext, context, start, end, m_vm);

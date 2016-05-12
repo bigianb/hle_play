@@ -75,6 +75,9 @@
     <ClCompile Include="..\Source\BgdaDebugBlock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\BgdaDrawObjectBlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\play\Source\ui_win32\Res.rc">
@@ -150,6 +153,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\BgdaDebugBlock.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\BgdaDrawObjectBlock.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
