@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\BgdaBeginTextBlock.cpp" />
+    <ClCompile Include="..\Source\BgdaDebugBlock.cpp" />
     <ClCompile Include="..\Source\BgdaDisplayBackBufferBlock.cpp" />
     <ClCompile Include="..\Source\BgdaDmaQueue.cpp" />
     <ClCompile Include="..\Source\BgdaDrawColourSpriteBlock.cpp" />
@@ -200,6 +201,7 @@
   <ItemGroup>
     <ClInclude Include="..\Source\BgdaBeginTextBlock.h" />
     <ClInclude Include="..\Source\bgdaContext.h" />
+    <ClInclude Include="..\Source\BgdaDebugBlock.h" />
     <ClInclude Include="..\Source\BgdaDisplayBackBufferBlock.h" />
     <ClInclude Include="..\Source\BgdaDmaQueue.h" />
     <ClInclude Include="..\Source\BgdaDrawColourSpriteBlock.h" />

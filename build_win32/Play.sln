@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\Framework\build_win32\Framework.vcxproj", "{553CE050-A97E-4E6E-AE84-057A1F0FA45D}"
 EndProject
@@ -259,8 +259,8 @@ Global
 		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithDebugger|Itanium.Build.0 = Release|Win32
 		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithDebugger|Win32.ActiveCfg = Release|Win32
 		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithDebugger|Win32.Build.0 = Release|Win32
-		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithDebugger|x64.ActiveCfg = Release|Win32
-		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithDebugger|x64.Build.0 = Release|Win32
+		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithDebugger|x64.ActiveCfg = Release|x64
+		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithDebugger|x64.Build.0 = Release|x64
 		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithoutAsm|Itanium.ActiveCfg = Release|Win32
 		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithoutAsm|Itanium.Build.0 = Release|Win32
 		{B04AA50A-6C64-4BDC-A6FD-69DD6FD099B3}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32

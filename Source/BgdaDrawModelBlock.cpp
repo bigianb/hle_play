@@ -108,6 +108,7 @@ unsigned int BgdaDrawModelBlock::Execute()
 		uint32 arg7 = m_context.m_State.nGPR[CMIPS::T3].nV0;
 	}
 	else {
+		// 0x13f108
 		pMatrix = (float*)HleVMUtils::getOffsetPointer(m_context, CMIPS::A3, 0);
 
 		pAnimData = HleVMUtils::getOffsetPointer(m_context, CMIPS::T0, 0);
