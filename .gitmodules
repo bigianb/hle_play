@@ -1,0 +1,6 @@
+[submodule "Play"]
+	path = Play
+	url = https://github.com/bigianb/Play-.git
+[submodule "frostbite"]
+	path = frostbite
+	url = https://github.com/bigianb/frostbite.git
