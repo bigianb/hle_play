@@ -33,19 +33,8 @@ add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
 set(PROJECT_LIBS)
 
 include(PrecompiledHeader)
+add_subdirectory(Source)
 
-if(TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_WIN32 OR USE_QT)
-        add_subdirectory(Play/Source/ui_qt/)
-endif(TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_WIN32 OR USE_QT)
 
-if(NOT USE_QT)
-        if(TARGET_PLATFORM_IOS)
-                add_subdirectory(Play/Source/ui_ios/)
-        endif(TARGET_PLATFORM_IOS)
-
-        if(TARGET_PLATFORM_ANDROID)
-                add_subdirectory(Play/Source/ui_android/)
-        endif(TARGET_PLATFORM_ANDROID)
-endif()
 
 
