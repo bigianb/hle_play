@@ -75,9 +75,9 @@ set(QT_SOURCES
 	../Play/Source/ui_qt/ControllerConfig/inputeventselectiondialog.h
 	../Play/Source/ui_qt/CoverUtils.cpp
 	../Play/Source/ui_qt/CoverUtils.h
-	../Play/Source/ui_qt/main.cpp
-	../Play/Source/ui_qt/mainwindow.cpp
-	../Play/Source/ui_qt/mainwindow.h
+	./ui_qt/main.cpp
+	./ui_qt/mainwindow.cpp
+	./ui_qt/hle_mainwindow.h
 	../Play/Source/ui_qt/ContinuationChecker.cpp
 	../Play/Source/ui_qt/ContinuationChecker.h
 	../Play/Source/ui_qt/ElidedLabel.cpp
